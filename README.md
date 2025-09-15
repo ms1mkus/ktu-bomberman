@@ -20,29 +20,34 @@ Install [JDK 21 or newer](https://www.oracle.com/technetwork/java/javase/downloa
 
 You can compile and run the project in two main ways:
 
-## Using IntelliJ IDEA
+## Using IntelliJ IDEA (Recommended)
 
-1. Open the project in IntelliJ IDEA:
-   - Go to **File > Open** and select the project folder.
-   - Mark the `src` folder as a Source Root (right-click > **Mark Directory as > Sources**).
-   - Build the project (**Build > Build Project**).
-   - Run the `Server` and `Client` classes from IntelliJ (right-click the file > **Run**).
+1. Open the project folder in IntelliJ IDEA.
+2. If prompted, select "Open as Project".
+3. (If `src` folder is not source root yet) Mark the `src` folder as a Source Root (right-click > **Mark Directory as > Sources**).
+4. Go to **File > Project Structure > Project**, and set the SDK to **JDK 21** or later.
+5. Build the project (**Build > Build Project** or `Cmd+F9`). (Also don't forget to build each time you change something!)
+6. Run the `Server` and `Client` classes by right-clicking their files in `src` and selecting **Run**.
 
 ## Using the Terminal
 
-1. Change to the `src` directory:
+**Important:** Always run commands from the project root (`/Users/martynas/Desktop/4711A-bomberman`) so images load correctly.
+
+1. Open a terminal and go to your project root:
    ```sh
-   cd src
+   cd /Users/martynas/Desktop/4711A-bomberman
    ```
 2. Compile all Java files:
    ```sh
+   cd src
    javac *.java
+   cd ..
    ```
 3. Start the server:
    ```sh
-   java Server
+   java -cp src Server
    ```
-4. Start the client:
+4. Start the client (in a new terminal window/tab):
    ```sh
-   java Client
+   java -cp src Client
    ```

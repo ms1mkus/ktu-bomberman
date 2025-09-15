@@ -1,4 +1,8 @@
-*.xd
-*.txt
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+# Java
 *.class
-.vscode
+# OS
+.DS_Store
