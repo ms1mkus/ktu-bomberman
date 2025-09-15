@@ -1,6 +1,6 @@
 import java.awt.event.*;
 
-//escuta enquanto a janela (JFrame) estiver em foco
+//listens while the window (JFrame) is focused
 public class Sender extends KeyAdapter {
    int lastKeyCodePressed;
    
@@ -13,7 +13,7 @@ public class Sender extends KeyAdapter {
       
    public void keyReleased(KeyEvent e) {
       Client.out.println("keyCodeReleased " + e.getKeyCode());
-      lastKeyCodePressed = -1; //a próxima tecla sempre será nova
+   lastKeyCodePressed = -1; //the next key will always be new
    }
    
    boolean isNewKeyCode(int keyCode) {

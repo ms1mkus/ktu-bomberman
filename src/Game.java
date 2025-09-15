@@ -25,7 +25,7 @@ public class Game extends JPanel {
       System.out.println("Meu jogador: " + Sprite.personColors[Client.id]);
    }
 
-   //desenha os componentes, chamada por paint() e repaint()
+   //draws components, called by paint() and repaint()
    public void paintComponent(Graphics g) {
       super.paintComponent(g);
       drawMap(g);
@@ -34,7 +34,7 @@ public class Game extends JPanel {
       enemy3.draw(g);
       you.draw(g);
       
-      // System.out.format("%s: %s [%04d, %04d]\n", Game.you.color, Game.you.status, Game.you.x, Game.you.y);;
+   // System.out.format("%s: %s [%04d, %04d]\n", Game.you.color, Game.you.status, Game.you.x, Game.you.y);;
       Toolkit.getDefaultToolkit().sync();
    }
    

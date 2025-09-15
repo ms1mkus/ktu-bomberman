@@ -1,7 +1,7 @@
 import java.awt.Graphics;
 import javax.swing.JPanel;
 
-//tanto para you quanto para enemy
+//for both you and enemy
 public class Player {
    int x, y;
    String status, color;

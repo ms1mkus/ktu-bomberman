@@ -1,16 +1,16 @@
-// acessada pelo servidor e pelo cliente
+// accessed by server and client
 interface Const {
-   // se não for 4, muitas coisas precisam deixar de ser instanciadas
+   // if not 4, many things must not be instantiated
    final static int QTY_PLAYERS = 4; 
 
-   final static int LIN = 9, COL = 9; // sempre ímpar
-   final static int RESIZE = 4; // tamanho do pixel
+   final static int LIN = 9, COL = 9; // always odd
+   final static int RESIZE = 4; // pixel size
 
    final static int SIZE_SPRITE_MAP = 16 * RESIZE;
    final static int WIDTH_SPRITE_PLAYER = 22 * RESIZE;
    final static int HEIGHT_SPRITE_PLAYER = 33 * RESIZE;
 
-   // diferença de pixels entre o sprite do mapa e do jogador
+   // pixel difference between map sprite and player sprite
    final static int VAR_X_SPRITES = 3 * RESIZE;
    final static int VAR_Y_SPRITES = 16 * RESIZE;
 

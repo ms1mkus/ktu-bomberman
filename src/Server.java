@@ -4,7 +4,7 @@ import java.net.Socket;
 
 class PlayerData {
    boolean logged, alive;
-   int x, y; //coordenada atual
+   int x, y; //current coordinate
    int numberOfBombs;
 
    PlayerData(int x, int y) {
@@ -12,7 +12,7 @@ class PlayerData {
       this.y = y;
       this.logged = false;
       this.alive = false;
-      this.numberOfBombs = 1; // para 2 bombas, é preciso tratar cada bomba em uma thread diferente
+   this.numberOfBombs = 1; // for 2 bombs, each bomb must be handled in a separate thread
    }
 }
 
@@ -28,7 +28,7 @@ class Server {
       
       try {
          System.out.print("Abrindo a porta " + portNumber + "...");
-         ss = new ServerSocket(portNumber); // socket escuta a porta
+         ss = new ServerSocket(portNumber); // socket listens to the port
          System.out.print(" ok\n");
 
          for (int id = 0; !loggedIsFull(); id = (++id)%Const.QTY_PLAYERS)
@@ -36,7 +36,7 @@ class Server {
                Socket clientSocket = ss.accept();
                new ClientManager(clientSocket, id).start();
             }
-         //nao encerra o servidor enquanto a thread dos clientes continuam executando
+         //do not close the server while client threads are still running
       } catch (IOException e) {
          System.out.println(" erro: " + e + "\n");
          System.exit(1);
@@ -55,7 +55,7 @@ class Server {
          for (int j = 0; j < Const.COL; j++)
             map[i][j] = new Coordinate(Const.SIZE_SPRITE_MAP * j, Const.SIZE_SPRITE_MAP * i, "block");
 
-      // paredes fixas das bordas
+   // fixed border walls
       for (int j = 1; j < Const.COL - 1; j++) {
          map[0][j].img = "wall-center";
          map[Const.LIN - 1][j].img = "wall-center";
@@ -69,13 +69,13 @@ class Server {
       map[Const.LIN - 1][0].img = "wall-down-left";
       map[Const.LIN - 1][Const.COL - 1].img = "wall-down-right";
 
-      // paredes fixas centrais
+   // fixed central walls
       for (int i = 2; i < Const.LIN - 2; i++)
          for (int j = 2; j < Const.COL - 2; j++)
             if (i % 2 == 0 && j % 2 == 0)
                map[i][j].img = "wall-center";
 
-      // arredores do spawn
+   // spawn surroundings
       map[1][1].img = "floor-1";
       map[1][2].img = "floor-1";
       map[2][1].img = "floor-1";

@@ -1,6 +1,6 @@
 import java.awt.event.KeyEvent;
 
-//thread que dispara as coordenadas seguintes aos clientes enquanto W/A/S/D não é solto
+//thread that sends the next coordinates to clients while W/A/S/D is held down
 class CoordinatesThrower extends Thread {
    boolean up, right, left, down;
    int id;
@@ -45,12 +45,12 @@ class CoordinatesThrower extends Thread {
       return y/Const.SIZE_SPRITE_MAP;
    }
 
-   // encontra sobre quais sprites do mapa o jogador está e verifica se são válidos
+   // finds which map sprites the player is on and checks if they are valid
    boolean coordinateIsValid(int newX, int newY) {
       if (!Server.player[id].alive)
          return false;
 
-      //verifica se o jogador foi para o fogo (coordenada do centro do corpo)
+   //checks if the player went into the fire (center body coordinate)
       int xBody = newX + Const.WIDTH_SPRITE_PLAYER/2;
       int yBody = newY + 2*Const.HEIGHT_SPRITE_PLAYER/3;
 
@@ -64,18 +64,18 @@ class CoordinatesThrower extends Thread {
       int c[] = new int[4], l[] = new int[4];
 
 
-      // EM RELAÇÃO À NOVA COORDENADA
+   // RELATIVE TO THE NEW COORDINATE
 
-      // 0: ponto do canto superior esquerdo
+   // 0: top left corner point
       x[0] = Const.VAR_X_SPRITES + newX + Const.RESIZE;
       y[0] = Const.VAR_Y_SPRITES + newY + Const.RESIZE;
-      // 1: ponto do canto superior direito
+   // 1: top right corner point
       x[1] = Const.VAR_X_SPRITES + newX + Const.SIZE_SPRITE_MAP - 2 * Const.RESIZE;
       y[1] = Const.VAR_Y_SPRITES + newY + Const.RESIZE;
-      // 2: ponto do canto inferior esquerdo
+   // 2: bottom left corner point
       x[2] = Const.VAR_X_SPRITES + newX + Const.RESIZE;
       y[2] = Const.VAR_Y_SPRITES + newY + Const.SIZE_SPRITE_MAP - 2 * Const.RESIZE;
-      // 3: ponto do canto inferior direito
+   // 3: bottom right corner point
       x[3] = Const.VAR_X_SPRITES + newX + Const.SIZE_SPRITE_MAP - 2 * Const.RESIZE;
       y[3] = Const.VAR_Y_SPRITES + newY + Const.SIZE_SPRITE_MAP - 2 * Const.RESIZE;
       
@@ -90,7 +90,7 @@ class CoordinatesThrower extends Thread {
          (Server.map[l[2]][c[2]].img.equals("floor-1") || Server.map[l[2]][c[2]].img.contains("explosion")) && 
          (Server.map[l[3]][c[3]].img.equals("floor-1") || Server.map[l[3]][c[3]].img.contains("explosion"))
       ) 
-         return true; //estará em uma coordenada válida
+         return true; //will be in a valid coordinate
 
       if (
          (Server.map[l[0]][c[0]].img.contains("block") || Server.map[l[0]][c[0]].img.contains("wall")) || 
@@ -98,22 +98,22 @@ class CoordinatesThrower extends Thread {
          (Server.map[l[2]][c[2]].img.contains("block") || Server.map[l[2]][c[2]].img.contains("wall")) || 
          (Server.map[l[3]][c[3]].img.contains("block") || Server.map[l[3]][c[3]].img.contains("wall"))
       ) 
-         return false; //estará sobre uma parede
+         return false; //will be on a wall
 
 
 
-      // EM RELAÇÃO À COORDENADA ANTERIOR
+   // RELATIVE TO THE PREVIOUS COORDINATE
 
-      // 0: ponto do canto superior esquerdo
+   // 0: top left corner point
       x[0] = Const.VAR_X_SPRITES + Server.player[id].x + Const.RESIZE;
       y[0] = Const.VAR_Y_SPRITES + Server.player[id].y + Const.RESIZE;
-      // 1: ponto do canto superior direito
+   // 1: top right corner point
       x[1] = Const.VAR_X_SPRITES + Server.player[id].x + Const.SIZE_SPRITE_MAP - 2 * Const.RESIZE;
       y[1] = Const.VAR_Y_SPRITES + Server.player[id].y + Const.RESIZE;
-      // 2: ponto do canto inferior esquerdo
+   // 2: bottom left corner point
       x[2] = Const.VAR_X_SPRITES + Server.player[id].x + Const.RESIZE;
       y[2] = Const.VAR_Y_SPRITES + Server.player[id].y + Const.SIZE_SPRITE_MAP - 2 * Const.RESIZE;
-      // 3: ponto do canto inferior direito
+   // 3: bottom right corner point
       x[3] = Const.VAR_X_SPRITES + Server.player[id].x + Const.SIZE_SPRITE_MAP - 2 * Const.RESIZE;
       y[3] = Const.VAR_Y_SPRITES + Server.player[id].y + Const.SIZE_SPRITE_MAP - 2 * Const.RESIZE;
       
@@ -128,7 +128,7 @@ class CoordinatesThrower extends Thread {
          Server.map[l[2]][c[2]].img.contains("bomb-planted") ||
          Server.map[l[3]][c[3]].img.contains("bomb-planted")
       ) 
-         return true; //estava sobre uma bomba que acabou de platar, precisa sair
+         return true; //was on a bomb just planted, needs to move away
       
       return false;
    }

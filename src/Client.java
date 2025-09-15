@@ -21,10 +21,10 @@ public class Client {
 
    Client(String host, int porta) {
       try {
-         System.out.print("Estabelecendo conexão com o servidor...");
+         System.out.print("Establishing connection with server...");
          this.socket = new Socket(host, porta);
-         out = new PrintStream(socket.getOutputStream(), true);  //para enviar ao servidor
-         in = new Scanner(socket.getInputStream()); //para receber do servidor
+         out = new PrintStream(socket.getOutputStream(), true);  //to send to server
+         in = new Scanner(socket.getInputStream()); //to receive from server
       } 
       catch (UnknownHostException e) {
          System.out.println(" erro: " + e + "\n");
@@ -43,16 +43,16 @@ public class Client {
    void receiveInitialSettings() {
       id = in.nextInt();
 
-      //mapa
+   //map
       for (int i = 0; i < Const.LIN; i++)
          for (int j = 0; j < Const.COL; j++)
             map[i][j] = new Coordinate(Const.SIZE_SPRITE_MAP * j, Const.SIZE_SPRITE_MAP * i, in.next());
       
-      //situação (vivo ou morto) inicial de todos os jogadores
+   //initial status (alive or dead) of all players
       for (int i = 0; i < Const.QTY_PLAYERS; i++)
          Client.alive[i] = in.nextBoolean();
 
-      //coordenadas inicias de todos os jogadores
+   //initial coordinates of all players
       for (int i = 0; i < Const.QTY_PLAYERS; i++)
          Client.spawn[i] = new Coordinate(in.nextInt(), in.nextInt());
    }

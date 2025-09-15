@@ -13,7 +13,7 @@ public class Sprite {
    };
 
    final static Hashtable<String, Image> ht = new Hashtable<String, Image>();
-   //não está na ordem do spritesheet
+   //not in spritesheet order
    final static String mapKeyWords[] = { 
       "background", 
       "block", 
@@ -33,7 +33,7 @@ public class Sprite {
       "mid-vert-explosion-1", "mid-vert-explosion-2", "mid-vert-explosion-3", "mid-vert-explosion-4", "mid-vert-explosion-5", 
       "wall-center", "wall-down-left", "wall-down-right", "wall-up-left", "wall-up-right" 
    };
-   //já está na ordem do spritesheet para usar autoCropAndRename.cpp
+   //already in spritesheet order for use with autoCropAndRename.cpp
    static final String personKeyWords[] = {
       "dead-0", "dead-1", "dead-2", "dead-3", "dead-4", 
       "down-0", "down-1", "down-2", "down-3", "down-4", "down-5", "down-6", "down-7", 

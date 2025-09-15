@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-//a cada cliente que entra no servidor, uma nova thread é instanciada para tratá-lo
+//for each client that connects to the server, a new thread is created to handle it
 class ClientManager extends Thread {
    static List<PrintStream> listOutClients = new ArrayList<PrintStream>();
 
@@ -29,9 +29,9 @@ class ClientManager extends Thread {
       (mt = new MapUpdatesThrower(this.id)).start();
 
       try {
-         System.out.print("Iniciando conexão com o jogador " + this.id + "...");
-         this.in = new Scanner(clientSocket.getInputStream()); // para receber do cliente
-         this.out = new PrintStream(clientSocket.getOutputStream(), true); // para enviar ao cliente
+         System.out.print("Starting connection with player " + this.id + "...");
+         this.in = new Scanner(clientSocket.getInputStream()); // to receive from client
+         this.out = new PrintStream(clientSocket.getOutputStream(), true); // to send to client
       } catch (IOException e) {
          System.out.println(" erro: " + e + "\n");
          System.exit(1);
@@ -41,16 +41,16 @@ class ClientManager extends Thread {
       listOutClients.add(out);
       Server.player[id].logged = true;
       Server.player[id].alive = true;
-      sendInitialSettings(); // envia uma única string
+   sendInitialSettings(); // sends a single string
 
-      //notifica aos clientes já logados
+   //notifies already connected clients
       for (PrintStream outClient: listOutClients)
          if (outClient != this.out)
             outClient.println(id + " playerJoined");
    }
 
    public void run() {
-      while (in.hasNextLine()) { // conexão estabelecida com o cliente this.id
+   while (in.hasNextLine()) { // connection established with client this.id
          String str[] = in.nextLine().split(" ");
          
          if (str[0].equals("keyCodePressed") && Server.player[id].alive) {    
@@ -85,7 +85,7 @@ class ClientManager extends Thread {
       listOutClients.remove(out);
       Server.player[id].logged = false;
       try {
-         System.out.print("Encerrando conexão com o jogador " + this.id + "...");
+         System.out.print("Closing connection with player " + this.id + "...");
          in.close();
          out.close();
          clientSocket.close();

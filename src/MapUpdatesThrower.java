@@ -1,4 +1,4 @@
-//thread que lança mudanças graduais no mapa que ocorrem logo após a bomba ser plantada
+//thread that triggers gradual map changes right after a bomb is planted
 class MapUpdatesThrower extends Thread {
    boolean bombPlanted;
    int id, l, c;
@@ -18,7 +18,7 @@ class MapUpdatesThrower extends Thread {
       this.bombPlanted = true;
    }
 
-   //muda o mapa no servidor e no cliente
+   //changes the map on server and client
    static void changeMap(String keyWord, int l, int c) {
       Server.map[l][c].img = keyWord;
       ClientManager.sendToAllClients("-1 mapUpdate " + keyWord + " " + l + " " + c);
@@ -31,7 +31,7 @@ class MapUpdatesThrower extends Thread {
       return y / Const.SIZE_SPRITE_MAP;
    }
 
-   // verifica se o fogo atingiu algum jogador parado (coordenada do centro do corpo)
+   // checks if the fire hit any standing player (center body coordinate)
    void checkIfExplosionKilledSomeone(int linSprite, int colSprite) {
       int linPlayer, colPlayer, x, y;
 
@@ -62,11 +62,11 @@ class MapUpdatesThrower extends Thread {
                } catch (InterruptedException e) {}
             }
 
-            //efeitos da explosão
+            //explosion effects
             new Thrower("center-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l, c).start();
             checkIfExplosionKilledSomeone(l, c);
             
-            //abaixo
+            //below
             if (Server.map[l+1][c].img.equals("floor-1")) {
                new Thrower("down-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l+1, c).start();
                checkIfExplosionKilledSomeone(l+1, c);
@@ -74,7 +74,7 @@ class MapUpdatesThrower extends Thread {
             else if (Server.map[l+1][c].img.contains("block"))
                new Thrower("block-on-fire", Const.indexBlockOnFire, Const.RATE_BLOCK_UPDATE, l+1, c).start();
 
-            //a direita
+            //to the right
             if (Server.map[l][c+1].img.equals("floor-1")) {
                new Thrower("right-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l, c+1).start();
                checkIfExplosionKilledSomeone(l, c+1);
@@ -82,7 +82,7 @@ class MapUpdatesThrower extends Thread {
             else if (Server.map[l][c+1].img.contains("block"))
                new Thrower("block-on-fire", Const.indexBlockOnFire, Const.RATE_BLOCK_UPDATE, l, c+1).start();
 
-            //acima
+            //above
             if (Server.map[l-1][c].img.equals("floor-1")) {
                new Thrower("up-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l-1, c).start();
                checkIfExplosionKilledSomeone(l-1, c);
@@ -90,7 +90,7 @@ class MapUpdatesThrower extends Thread {
             else if (Server.map[l-1][c].img.contains("block"))
                new Thrower("block-on-fire", Const.indexBlockOnFire, Const.RATE_BLOCK_UPDATE, l-1, c).start();
 
-            //a esquerda   
+            //to the left   
             if (Server.map[l][c-1].img.equals("floor-1")) {
                new Thrower("left-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l, c-1).start();
                checkIfExplosionKilledSomeone(l, c-1);
@@ -98,14 +98,14 @@ class MapUpdatesThrower extends Thread {
             else if (Server.map[l][c-1].img.contains("block"))
                new Thrower("block-on-fire", Const.indexBlockOnFire, Const.RATE_BLOCK_UPDATE, l, c-1).start();
 
-            Server.player[id].numberOfBombs++; //libera bomba
+            Server.player[id].numberOfBombs++; //release bomb
          }
          try {sleep(0);} catch (InterruptedException e) {}
       }
    }
 }
 
-//thread auxiliar
+//auxiliary thread
 class Thrower extends Thread {
    String keyWord, index[];
    int l, c;
@@ -126,7 +126,7 @@ class Thrower extends Thread {
             sleep(delay);
          } catch (InterruptedException e) {}
       }
-      //situação pós-explosão
+   //post-explosion situation
       MapUpdatesThrower.changeMap("floor-1", l, c);
    }
 }

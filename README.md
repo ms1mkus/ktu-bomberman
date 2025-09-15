@@ -1,29 +1,48 @@
-![Interface gráfica do jogo](./images/screenshot.png)
+# ktu-bomberman (Fork)
 
-# Como executar
-- Instale o [JDK](https://www.oracle.com/technetwork/java/javase/downloads) do Java na sua máquina, se ainda não tiver.
-- Rode os comandos:
-   - `cd src`
-   - Compile: `javac *.java`
-   - Inicie o servidor: `java Server`
-   - Inicie o cliente: `java Client`
+This project is a fork of [4711A-bomberman by Bruno Papa](https://github.com/brnpapa/4711A-bomberman).
 
-# Introdução
+Original author: Bruno Papa  
+License: MIT
 
-Lançado pela desenvolvedora Hudson Soft em 1983, o clássico Bomberman foi um dos jogos mais conhecidos da história. Trata-se de um jogo de estratégia onde vence aquele que explodir o adversário, desde que não tenha se matado antes. Para isso é preciso destruir as paredes não-fixas com bombas explosivas para abrir caminho e, também, contar com a sorte para tentar encontrar, de forma aleatória, itens que dão um upgrade no personagem, como uma melhora do alcance da bomba ou um aumento da quantidade máxima de bombas simultâneas.
-
-# Objetivo
-
-Desenvolver programas em Java para que no mínimo duas pessoas, possivelmente localizadas remotamente, possam jogar interagindo através do teclado em um mapa 2D exibido para o usuário através de uma interface gráfica.
-
-# Descrição
-O jogo apresenta uma arquitetura cliente-servidor onde dois ou quatro jogadores remotos, interagindo com programas clientes idênticos, disputam através de um programa servidor também remoto. Estes programas serão desenvolvidos utilizando a linguagem Java, e Swing para o desenvolvimento da interface.
-Através de um mapa exibido por uma interface gráfica, o jogador fará seus movimentos com as teclas W,A,S,D para movimentar o seu personagem para cima, esquerda, baixo ou direita, e ao apertar o ESPAÇO a bomba será plantada na posição atual. O servidor, responsável por intermediar os programas clientes, fica esperando as jogadas realizadas pelos clientes. Quando uma jogada é recebida, o servidor fará a consistência da jogada, atualizará uma representação interna do jogo e devolverá a todos os clientes o estado atual do mapa. Se, por outro lado, for tentada em uma jogada inválida, o servidor ignorará a jogada.
-
-
-
-------
-
-Autor: [Bruno Papa](https://github.com/brnpapa)
-
+All original copyright and credits remain.  
 Sprites ripped by Zanaku, Game tilesets ripped by Plasma Captain.
+
+![Game UI](./images/screenshot.png)
+
+# Prerequisites
+
+**Minimum required Java version:** JDK 21
+
+Install [JDK 21 or newer](https://www.oracle.com/technetwork/java/javase/downloads) if you don't have it.
+
+# How to Run
+
+You can compile and run the project in two main ways:
+
+## Using IntelliJ IDEA
+
+1. Open the project in IntelliJ IDEA:
+   - Go to **File > Open** and select the project folder.
+   - Mark the `src` folder as a Source Root (right-click > **Mark Directory as > Sources**).
+   - Build the project (**Build > Build Project**).
+   - Run the `Server` and `Client` classes from IntelliJ (right-click the file > **Run**).
+
+## Using the Terminal
+
+1. Change to the `src` directory:
+   ```sh
+   cd src
+   ```
+2. Compile all Java files:
+   ```sh
+   javac *.java
+   ```
+3. Start the server:
+   ```sh
+   java Server
+   ```
+4. Start the client:
+   ```sh
+   java Client
+   ```
