@@ -11,18 +11,18 @@ public class Game extends JPanel {
    Game(int width, int height) {
       setPreferredSize(new Dimension(width, height));
       try {
-         System.out.print("Inicializando jogadores...");
+         System.out.print("Initializing players...");
          you = new Player(Client.id, this);
          enemy1 = new Player((Client.id+1)%Const.QTY_PLAYERS, this);
          enemy2 = new Player((Client.id+2)%Const.QTY_PLAYERS, this);
          enemy3 = new Player((Client.id+3)%Const.QTY_PLAYERS, this);
       } catch (InterruptedException e) {
-         System.out.println(" erro: " + e + "\n");
+         System.out.println("Error: " + e + "\n");
          System.exit(1);
       }
       System.out.print(" ok\n");
 
-      System.out.println("Meu jogador: " + Sprite.personColors[Client.id]);
+      System.out.println("My player: " + Sprite.personColors[Client.id]);
    }
 
    //draws components, called by paint() and repaint()

@@ -27,11 +27,11 @@ public class Client {
          in = new Scanner(socket.getInputStream()); //to receive from server
       } 
       catch (UnknownHostException e) {
-         System.out.println(" erro: " + e + "\n");
+         System.out.println("Error: " + e + "\n");
          System.exit(1);
       } 
       catch (IOException e) {
-         System.out.println(" erro: " + e + "\n");
+         System.out.println("Error: " + e + "\n");
          System.exit(1);
       }
       System.out.print(" ok\n");

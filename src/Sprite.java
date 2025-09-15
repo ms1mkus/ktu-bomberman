@@ -59,7 +59,7 @@ public class Sprite {
 
    static void loadImages() {
       try {
-         System.out.print("Carregando imagens...");
+         System.out.print("Loading images...");
          for (String keyWord : mapKeyWords)
             ht.put(keyWord, ImageIO.read(new File("../images/map/basic/"+keyWord+".png")));
 
@@ -67,7 +67,7 @@ public class Sprite {
             for (String keyWord : personKeyWords)
                ht.put(color+"/"+keyWord, ImageIO.read(new File("../images/person/"+color+"/"+keyWord+".png")));
       } catch (IOException e) {
-         System.out.print(" erro!\n");
+         System.out.print("Error!\n");
          System.exit(1);
       }
       System.out.print(" ok!\n");

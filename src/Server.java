@@ -27,7 +27,7 @@ class Server {
       setPlayerData();
       
       try {
-         System.out.print("Abrindo a porta " + portNumber + "...");
+         System.out.print("Opening port " + portNumber + "...");
          ss = new ServerSocket(portNumber); // socket listens to the port
          System.out.print(" ok\n");
 
@@ -38,7 +38,7 @@ class Server {
             }
          //do not close the server while client threads are still running
       } catch (IOException e) {
-         System.out.println(" erro: " + e + "\n");
+         System.out.println("Error: " + e + "\n");
          System.exit(1);
       }
    }

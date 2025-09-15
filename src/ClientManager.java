@@ -33,7 +33,7 @@ class ClientManager extends Thread {
          this.in = new Scanner(clientSocket.getInputStream()); // to receive from client
          this.out = new PrintStream(clientSocket.getOutputStream(), true); // to send to client
       } catch (IOException e) {
-         System.out.println(" erro: " + e + "\n");
+         System.out.println("Error: " + e + "\n");
          System.exit(1);
       }
       System.out.print(" ok\n");
@@ -90,7 +90,7 @@ class ClientManager extends Thread {
          out.close();
          clientSocket.close();
       } catch (IOException e) {
-         System.out.println(" erro: " + e + "\n");
+         System.out.println("Error: " + e + "\n");
          System.exit(1);
       }
       System.out.print(" ok\n");
