@@ -31,11 +31,11 @@ You can compile and run the project in two main ways:
 
 ## Using the Terminal
 
-**Important:** Always run commands from the project root (`/Users/martynas/Desktop/4711A-bomberman`) so images load correctly.
+**Important:** Always run commands from the project root (`/4711A-bomberman`) so images load correctly.
 
 1. Open a terminal and go to your project root:
    ```sh
-   cd /Users/martynas/Desktop/4711A-bomberman
+   cd 4711A-bomberman
    ```
 2. Compile all Java files:
    ```sh
