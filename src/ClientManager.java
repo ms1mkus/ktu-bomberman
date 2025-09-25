@@ -25,8 +25,9 @@ class ClientManager extends Thread {
    ClientManager(Socket clientSocket, int id) {
       this.id = id;
       this.clientSocket = clientSocket;
-      (ct = new CoordinatesThrower(this.id)).start();
-      (mt = new MapUpdatesThrower(this.id)).start();
+      this.ct = (CoordinatesThrower)ThrowerHandlerFactory.makeHandler(ThrowerHandlerType.COORDINATES, id);
+      this.mt = (MapUpdatesThrower)ThrowerHandlerFactory.makeHandler(ThrowerHandlerType.MAP_UPDATES, id);
+
 
       try {
          System.out.print("Starting connection with player " + this.id + "...");

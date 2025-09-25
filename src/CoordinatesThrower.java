@@ -1,7 +1,8 @@
 import java.awt.event.KeyEvent;
 
 //thread that sends the next coordinates to clients while W/A/S/D is held down
-class CoordinatesThrower extends Thread {
+class CoordinatesThrower implements ThrowerHandler
+{
    boolean up, right, left, down;
    int id;
 
@@ -10,6 +11,7 @@ class CoordinatesThrower extends Thread {
       up = down = right = left = false;
    }
 
+   @Override
    public void run() {
       int newX = Server.player[id].x;
       int newY = Server.player[id].y;
@@ -31,10 +33,10 @@ class CoordinatesThrower extends Thread {
                newY = Server.player[id].y;
             }
             try {
-               sleep(Const.RATE_COORDINATES_UPDATE);
+               Thread.sleep(Const.RATE_COORDINATES_UPDATE);
             } catch (InterruptedException e) {}
          }
-         try {sleep(0);} catch (InterruptedException e) {}
+         try {Thread.sleep(0);} catch (InterruptedException e) {}
       }
    }
 

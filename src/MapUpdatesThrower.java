@@ -1,5 +1,5 @@
 //thread that triggers gradual map changes right after a bomb is planted
-class MapUpdatesThrower extends Thread {
+class MapUpdatesThrower implements ThrowerHandler {
    boolean bombPlanted;
    int id, l, c;
 
@@ -50,6 +50,7 @@ class MapUpdatesThrower extends Thread {
          }
    }
 
+   @Override
    public void run() {
       while (true) {
          if (bombPlanted) {
@@ -58,7 +59,7 @@ class MapUpdatesThrower extends Thread {
             for (String index: Const.indexBombPlanted) {
                changeMap("bomb-planted-" + index, l, c);
                try {
-                  sleep(Const.RATE_BOMB_UPDATE);
+                  Thread.sleep(Const.RATE_BOMB_UPDATE);
                } catch (InterruptedException e) {}
             }
 
@@ -100,33 +101,8 @@ class MapUpdatesThrower extends Thread {
 
             Server.player[id].numberOfBombs++; //release bomb
          }
-         try {sleep(0);} catch (InterruptedException e) {}
+         try {Thread.sleep(0);} catch (InterruptedException e) {}
       }
    }
 }
 
-//auxiliary thread
-class Thrower extends Thread {
-   String keyWord, index[];
-   int l, c;
-   int delay;
-
-   Thrower(String keyWord, String index[], int delay, int l, int c) {
-      this.keyWord = keyWord;
-      this.index = index;
-      this.delay = delay;
-      this.l = l;
-      this.c = c;
-   }
-
-   public void run() {
-      for (String i : index) {
-         MapUpdatesThrower.changeMap(keyWord + "-" + i, l, c);
-         try {
-            sleep(delay);
-         } catch (InterruptedException e) {}
-      }
-   //post-explosion situation
-      MapUpdatesThrower.changeMap("floor-1", l, c);
-   }
-}
