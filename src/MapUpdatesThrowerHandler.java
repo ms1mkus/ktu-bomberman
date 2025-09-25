@@ -1,9 +1,9 @@
 //thread that triggers gradual map changes right after a bomb is planted
-class MapUpdatesThrower implements ThrowerHandler {
+class MapUpdatesThrowerHandler implements ThrowerHandler {
    boolean bombPlanted;
    int id, l, c;
 
-   MapUpdatesThrower(int id) {
+   MapUpdatesThrowerHandler(int id) {
       this.id = id;
       this.bombPlanted = false;
    }

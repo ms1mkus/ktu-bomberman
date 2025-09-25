@@ -14,12 +14,12 @@ class Thrower extends Thread {
 
     public void run() {
         for (String i : index) {
-            MapUpdatesThrower.changeMap(keyWord + "-" + i, l, c);
+            MapUpdatesThrowerHandler.changeMap(keyWord + "-" + i, l, c);
             try {
                 sleep(delay);
             } catch (InterruptedException e) {}
         }
         //post-explosion situation
-        MapUpdatesThrower.changeMap("floor-1", l, c);
+        MapUpdatesThrowerHandler.changeMap("floor-1", l, c);
     }
 }

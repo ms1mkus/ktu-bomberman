@@ -1,12 +1,12 @@
 import java.awt.event.KeyEvent;
 
 //thread that sends the next coordinates to clients while W/A/S/D is held down
-class CoordinatesThrower implements ThrowerHandler
+class CoordinatesThrowerHandler implements ThrowerHandler
 {
    boolean up, right, left, down;
    int id;
 
-   CoordinatesThrower(int id) {
+   CoordinatesThrowerHandler(int id) {
       this.id = id;
       up = down = right = left = false;
    }

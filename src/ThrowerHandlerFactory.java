@@ -7,8 +7,8 @@ public class ThrowerHandlerFactory
 
         switch (type)
         {
-            case MAP_UPDATES -> ret = new MapUpdatesThrower(id);
-            case COORDINATES -> ret = new CoordinatesThrower(id);
+            case MAP_UPDATES -> ret = new MapUpdatesThrowerHandler(id);
+            case COORDINATES -> ret = new CoordinatesThrowerHandler(id);
             default          -> throw new IllegalArgumentException("Unknown thrower handler type: " + type);
         }
 

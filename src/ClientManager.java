@@ -19,14 +19,14 @@ class ClientManager extends Thread {
    private PrintStream out = null;
    private int id;
 
-   CoordinatesThrower ct;
-   MapUpdatesThrower mt;
+   CoordinatesThrowerHandler ct;
+   MapUpdatesThrowerHandler mt;
 
    ClientManager(Socket clientSocket, int id) {
       this.id = id;
       this.clientSocket = clientSocket;
-      this.ct = (CoordinatesThrower)ThrowerHandlerFactory.makeHandler(ThrowerHandlerType.COORDINATES, id);
-      this.mt = (MapUpdatesThrower)ThrowerHandlerFactory.makeHandler(ThrowerHandlerType.MAP_UPDATES, id);
+      this.ct = (CoordinatesThrowerHandler)ThrowerHandlerFactory.makeHandler(ThrowerHandlerType.COORDINATES, id);
+      this.mt = (MapUpdatesThrowerHandler)ThrowerHandlerFactory.makeHandler(ThrowerHandlerType.MAP_UPDATES, id);
 
 
       try {
