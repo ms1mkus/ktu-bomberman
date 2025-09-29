@@ -3,14 +3,16 @@ public class Receiver extends Thread {
    Player p;
    
    Player fromWhichPlayerIs(int id) {
+      Game game = Game.getInstance();
+
       if (id == Client.id)
-         return Game.you;
+         return game.getYou();
       else if (id == (Client.id+1)%Const.QTY_PLAYERS)
-         return Game.enemy1;
+         return game.getEnemy1();
       else if (id == (Client.id+2)%Const.QTY_PLAYERS)
-         return Game.enemy2;
+         return game.getEnemy2();
       else if (id == (Client.id+3)%Const.QTY_PLAYERS)
-         return Game.enemy3;
+         return game.getEnemy3();
       return null;
    }
 
@@ -22,12 +24,12 @@ public class Receiver extends Thread {
 
          if (str.equals("mapUpdate")) { //p null
             Game.setSpriteMap(Client.in.next(), Client.in.nextInt(), Client.in.nextInt());
-            Game.you.panel.repaint();
+            Game.getInstance().repaint();
          }
          else if (str.equals("newCoordinate")) {
             p.x = Client.in.nextInt();
             p.y = Client.in.nextInt();
-            Game.you.panel.repaint();
+            Game.getInstance().repaint();
          }
          else if (str.equals("newStatus")) {
             p.sc.setLoopStatus(Client.in.next());

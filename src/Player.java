@@ -52,7 +52,7 @@ class StatusChanger extends Thread {
 
          if (p.status.equals("dead-4")) {
             p.alive = false;
-            if (Game.you == p)
+            if (Game.getInstance().getYou() == p)
                System.exit(1);
          }
       }

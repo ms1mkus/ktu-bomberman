@@ -17,10 +17,11 @@ class PlayerData {
 }
 
 class Server {
+   private static Server instance = null;
    static PlayerData player[] = new PlayerData[Const.QTY_PLAYERS];
    static Coordinate map[][] = new Coordinate[Const.LIN][Const.COL];
    
-   Server(int portNumber) {
+   private Server(int portNumber) {
       ServerSocket ss;
 
       setMap();
@@ -41,6 +42,13 @@ class Server {
          System.out.println("Error: " + e + "\n");
          System.exit(1);
       }
+   }
+   // Get single instance of Server
+   public static Server getInstance(int portNumber) {
+      if (instance == null){
+         instance = new Server(portNumber);
+      }
+      return instance;
    }
 
    boolean loggedIsFull() {
@@ -111,6 +119,6 @@ class Server {
    }
 
    public static void main(String[] args) {
-      new Server(8383);
+      Server.getInstance(8383);
    }
 }

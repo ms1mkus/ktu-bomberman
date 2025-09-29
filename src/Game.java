@@ -5,10 +5,12 @@ import java.awt.Toolkit;
 import javax.swing.JPanel;
 
 public class Game extends JPanel {
-   private static final long serialVersionUID = 1L;
-   static Player you, enemy1, enemy2, enemy3;
+   private static Game instance = null;
 
-   Game(int width, int height) {
+   private static final long serialVersionUID = 1L;
+   private Player you, enemy1, enemy2, enemy3;
+
+   private Game(int width, int height) {
       setPreferredSize(new Dimension(width, height));
       try {
          System.out.print("Initializing players...");
@@ -24,6 +26,19 @@ public class Game extends JPanel {
 
       System.out.println("My player: " + Sprite.personColors[Client.id]);
    }
+   // Get single instance of Game
+   public static Game getInstance(int width, int height) {
+      if (instance == null){
+         instance = new Game(width, height);
+      }
+      return instance;
+   }
+   public static Game getInstance() {
+      if (instance == null){
+         System.out.println("Game instance not created yet.");
+      }
+      return instance;
+   }
 
    //draws components, called by paint() and repaint()
    public void paintComponent(Graphics g) {
@@ -34,7 +49,7 @@ public class Game extends JPanel {
       enemy3.draw(g);
       you.draw(g);
       
-   // System.out.format("%s: %s [%04d, %04d]\n", Game.you.color, Game.you.status, Game.you.x, Game.you.y);;
+      // System.out.format("%s: %s [%04d, %04d]\n", Game.you.color, Game.you.status, Game.you.x, Game.you.y);;
       Toolkit.getDefaultToolkit().sync();
    }
    
@@ -50,5 +65,21 @@ public class Game extends JPanel {
 
    static void setSpriteMap(String keyWord, int l, int c) {
       Client.map[l][c].img = keyWord;
+   }
+
+   public Player getYou() {
+      return you;
+   }
+
+   public Player getEnemy1() {
+      return enemy1;
+   }
+
+   public Player getEnemy2() {
+      return enemy2;
+   }
+
+   public Player getEnemy3() {
+      return enemy3;
    }
 }

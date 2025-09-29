@@ -6,7 +6,7 @@ public class Sender extends KeyAdapter {
    
    public void keyPressed(KeyEvent e) {
       if (e.getKeyCode() == KeyEvent.VK_SPACE)
-         Client.out.println("pressedSpace " + Game.you.x + " " + Game.you.y);
+         Client.out.println("pressedSpace " + Game.getInstance().getYou().x + " " + Game.getInstance().getYou().y);
       else if (isNewKeyCode(e.getKeyCode()))
          Client.out.println("keyCodePressed " + e.getKeyCode());
    }
