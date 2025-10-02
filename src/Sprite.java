@@ -60,13 +60,12 @@ public class Sprite {
    static void loadImages() {
       try {
          System.out.print("Loading images...");
-         String projectDir = System.getProperty("user.dir");
          for (String keyWord : mapKeyWords)
-            ht.put(keyWord, ImageIO.read(new File(projectDir + "/images/map/basic/" + keyWord + ".png")));
+            ht.put(keyWord, ImageIO.read(new File(Const.BOMBERMAN_RESOURCES_DIR + "images/map/basic/" + keyWord + ".png")));
 
          for (String color : personColors)
             for (String keyWord : personKeyWords)
-               ht.put(color + "/" + keyWord, ImageIO.read(new File(projectDir + "/images/person/" + color + "/" + keyWord + ".png")));
+               ht.put(color + "/" + keyWord, ImageIO.read(new File(Const.BOMBERMAN_RESOURCES_DIR + "images/person/" + color + "/" + keyWord + ".png")));
       } catch (IOException e) {
          System.out.print("Error!\n");
          System.exit(1);

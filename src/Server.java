@@ -1,6 +1,9 @@
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Properties;
+import java.util.logging.Level;
 
 class PlayerData {
    boolean logged, alive;
@@ -16,12 +19,69 @@ class PlayerData {
    }
 }
 
+class ServerConfig
+{
+
+   private static class EnumPropertiesParser
+   {
+      public static <T extends Enum<T>> T parseEnum(
+              Properties properties_file,
+              String key,
+              Class<T> enumClass,
+              T defaultValue)
+      {
+
+         String value = properties_file.getProperty(key);
+         if (value == null)
+         {
+            return defaultValue;
+         }
+
+         try
+         {
+            return Enum.valueOf(enumClass, value.toUpperCase());
+         }
+         catch (IllegalArgumentException e)
+         {
+            System.out.println("Error: Invalid value '" + value + "' for " + enumClass.getSimpleName() + ". Using default: " + defaultValue);
+            return defaultValue;
+         }
+      }
+   }
+
+   private LevelType levelType;
+   public LevelType getLevelType() { return this.levelType;}
+
+   public ServerConfig()
+   {
+      Properties properties_file = new Properties();
+      try (FileInputStream fis = new FileInputStream(Const.BOMBERMAN_RESOURCES_DIR + "server.properties"))
+      {
+         properties_file.load(fis);
+      }
+      catch (IOException e)
+      {
+         System.out.println("Error: Couldn't load server properties file: " + e.getMessage());
+      }
+
+      this.levelType = EnumPropertiesParser.parseEnum(properties_file,
+              "level-type", LevelType.class, LevelType.SMALL);
+   }
+
+
+}
+
 class Server {
    private static Server instance = null;
-   static PlayerData player[] = new PlayerData[Const.QTY_PLAYERS];
-   static Coordinate map[][] = new Coordinate[Const.LIN][Const.COL];
+   private ServerConfig config = null;
+   static PlayerData[] player = null;
+   static Coordinate[][] map = null;
+
    
    private Server(int portNumber) {
+
+      this.config = new ServerConfig();
+
       ServerSocket ss;
 
       setMap();
@@ -59,6 +119,9 @@ class Server {
    }
    
    void setMap() {
+
+      map = new Coordinate[Const.LIN][Const.COL];
+
       for (int i = 0; i < Const.LIN; i++)
          for (int j = 0; j < Const.COL; j++)
             map[i][j] = new Coordinate(Const.SIZE_SPRITE_MAP * j, Const.SIZE_SPRITE_MAP * i, "block");
@@ -99,6 +162,9 @@ class Server {
    }
    
    void setPlayerData() {
+
+      player = new PlayerData[Const.QTY_PLAYERS];
+
       player[0] = new PlayerData(
          map[1][1].x - Const.VAR_X_SPRITES, 
          map[1][1].y - Const.VAR_Y_SPRITES

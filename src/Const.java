@@ -30,6 +30,8 @@ interface Const {
    final static String indexBlockOnFire[] = {
       "1", "2", "1", "2", "1", "2", "3", "4", "5", "6"
    };
+
+   final static String BOMBERMAN_RESOURCES_DIR = System.getProperty("user.dir") + "/resources/";
 }
 
 class Coordinate {
