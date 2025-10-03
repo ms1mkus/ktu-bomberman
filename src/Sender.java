@@ -9,11 +9,11 @@ public class Sender extends KeyAdapter {
          Client.out.println("pressedSpace " + Game.getInstance().getYou().x + " " + Game.getInstance().getYou().y);
       else if (isNewKeyCode(e.getKeyCode()))
          Client.out.println("keyCodePressed " + e.getKeyCode());
-   }
+      }
       
    public void keyReleased(KeyEvent e) {
       Client.out.println("keyCodeReleased " + e.getKeyCode());
-   lastKeyCodePressed = -1; //the next key will always be new
+      lastKeyCodePressed = -1; //the next key will always be new
    }
    
    boolean isNewKeyCode(int keyCode) {

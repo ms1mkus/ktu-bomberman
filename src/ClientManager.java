@@ -21,12 +21,14 @@ class ClientManager extends Thread {
 
    CoordinatesThrowerHandler ct;
    MapUpdatesThrowerHandler mt;
+   BulletThrowerHandler bt;
 
    ClientManager(Socket clientSocket, int id) {
       this.id = id;
       this.clientSocket = clientSocket;
       this.ct = (CoordinatesThrowerHandler)ThrowerHandlerFactory.makeHandler(ThrowerHandlerType.COORDINATES, id);
       this.mt = (MapUpdatesThrowerHandler)ThrowerHandlerFactory.makeHandler(ThrowerHandlerType.MAP_UPDATES, id);
+      this.bt = (BulletThrowerHandler)ThrowerHandlerFactory.makeHandler(ThrowerHandlerType.BULLETS, id);
 
 
       try {
@@ -63,6 +65,11 @@ class ClientManager extends Thread {
          else if (str[0].equals("pressedSpace") && Server.player[id].numberOfBombs >= 1) {
             Server.player[id].numberOfBombs--;
             mt.setBombPlanted(Integer.parseInt(str[1]), Integer.parseInt(str[2]));
+         }
+         else if (str[0].equals("shoot") && Server.player[id].alive) {
+            int startX = Server.player[id].x + Const.WIDTH_SPRITE_PLAYER / 2;
+            int startY = Server.player[id].y + Const.HEIGHT_SPRITE_PLAYER / 2;
+            bt.setBulletFired(startX, startY, Integer.parseInt(str[1]), Integer.parseInt(str[2]));
          }
       }
       clientDesconnected();

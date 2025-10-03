@@ -21,8 +21,9 @@ public class Player {
    }
 
    public void draw(Graphics g) {
-      if (alive)
+      if (alive) {
          g.drawImage(Sprite.ht.get(color + "/" + status), x, y, Const.WIDTH_SPRITE_PLAYER, Const.HEIGHT_SPRITE_PLAYER, null);
+      }
    }
 }
 

@@ -85,6 +85,7 @@ class Server {
 
       setMap();
       setPlayerData();
+      BlockHealthManager.initializeAllBlocks();
       
       try {
          System.out.print("Opening port " + portNumber + "...");

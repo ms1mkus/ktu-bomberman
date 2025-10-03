@@ -22,8 +22,18 @@ public class Receiver extends Thread {
          this.p = fromWhichPlayerIs(Client.in.nextInt()); //client id
          str = Client.in.next();
 
-         if (str.equals("mapUpdate")) { //p null
+         if (str.equals("mapUpdate")) {
             Game.setSpriteMap(Client.in.next(), Client.in.nextInt(), Client.in.nextInt());
+            Game.getInstance().repaint();
+         }
+         else if (str.equals("bulletUpdate")) {
+            Game.handleBulletUpdate(Client.in.nextLine().trim());
+            Game.getInstance().repaint();
+         }
+         else if (str.equals("blockHealth")) {
+            String blockKey = Client.in.next();
+            int health = Client.in.nextInt();
+            Game.handleBlockHealth(blockKey, health);
             Game.getInstance().repaint();
          }
          else if (str.equals("newCoordinate")) {

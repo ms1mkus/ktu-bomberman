@@ -33,6 +33,10 @@ public class Sprite {
       "mid-vert-explosion-1", "mid-vert-explosion-2", "mid-vert-explosion-3", "mid-vert-explosion-4", "mid-vert-explosion-5", 
       "wall-center", "wall-down-left", "wall-down-right", "wall-up-left", "wall-up-right" 
    };
+   
+   final static String bulletKeyWords[] = {
+      "minigun-1", "shotgun-1", "tornado-1"
+   };
    //already in spritesheet order for use with autoCropAndRename.cpp
    static final String personKeyWords[] = {
       "dead-0", "dead-1", "dead-2", "dead-3", "dead-4", 
@@ -66,6 +70,9 @@ public class Sprite {
          for (String color : personColors)
             for (String keyWord : personKeyWords)
                ht.put(color + "/" + keyWord, ImageIO.read(new File(Const.BOMBERMAN_RESOURCES_DIR + "images/person/" + color + "/" + keyWord + ".png")));
+         
+         for (String keyWord : bulletKeyWords)
+            ht.put("bullet/" + keyWord, ImageIO.read(new File(Const.BOMBERMAN_RESOURCES_DIR + "images/bullet/" + keyWord + ".png")));
       } catch (IOException e) {
          System.out.print("Error!\n");
          System.exit(1);

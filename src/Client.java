@@ -64,7 +64,7 @@ public class Client {
       //initial coordinates of all players
       for (int i = 0; i < Const.QTY_PLAYERS; i++)
          Client.spawn[i] = new Coordinate(in.nextInt(), in.nextInt());
-   }
+            }
    
    public static void main(String[] args) {
       Client.getInstance("127.0.0.1", 8383);
