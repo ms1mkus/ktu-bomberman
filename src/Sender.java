@@ -9,20 +9,9 @@ public class Sender extends KeyAdapter {
          Client.out.println("pressedSpace " + Game.getInstance().getYou().x + " " + Game.getInstance().getYou().y);
       else if (e.getKeyCode() == KeyEvent.VK_C)  // building a wall
       {
-
          String dir = Sprite.getPersonSpriteFaceDirection(Game.getInstance().getYou().status);
-         int pos_x = Game.getInstance().getYou().x;
-         int pos_y = Game.getInstance().getYou().y;
 
-         switch (dir)
-         {
-            case "up": pos_y += 1;
-            case "left": pos_x += -1;
-            case "right": pos_x += 1;
-            case "down": pos_y -= 1;
-         }
-
-         Client.out.println("build_wall " + pos_x + " " + pos_y);
+         Client.out.println("build_wall " + dir);
       }
       else if (e.getKeyCode() == KeyEvent.VK_X) // removing last placed wall
       {

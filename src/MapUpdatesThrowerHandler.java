@@ -23,25 +23,38 @@ class MapUpdatesThrowerHandler implements ThrowerHandler {
       this.bombPlanted = true;
    }
 
-   void setBuildableWall(int x, int y)
+   void setBuildableWall(String dir)
    {
-      x += Const.WIDTH_SPRITE_PLAYER / 2;
-      y += 2 * Const.HEIGHT_SPRITE_PLAYER / 3;
+      int x = Server.player[id].x;
+      int y = Server.player[id].y;
 
-      int wc = x/Const.SIZE_SPRITE_MAP;
-      int wl = y/Const.SIZE_SPRITE_MAP;
+      int xBody = x + Const.WIDTH_SPRITE_PLAYER/2;
+      int yBody = y + 2*Const.HEIGHT_SPRITE_PLAYER/3;
 
-      if (Server.map[wl][wc].img.equals("floor-1"))
+      int tileX = xBody / Const.SIZE_SPRITE_MAP;
+      int tileY = yBody / Const.SIZE_SPRITE_MAP;
+
+      switch (dir)
       {
-         BuildableWall bw = new BuildableWall(wc, wl, id);
-         BuildWallCommand bwc = new BuildWallCommand(bw);
-
-         bwc.execute();
-
-         builtWalls.push(bwc);
-
+         case "up": tileY  -= 1; break;
+         case "left": tileX -= 1; break;
+         case "right": tileX += 1; break;
+         case "down": tileY  += 1; break;
       }
 
+      if (tileX >= 0 && tileX < Const.COL && tileY >= 0 && tileY < Const.LIN)
+      {
+         if (Server.map[tileX][tileY].img.equals("floor-1"))
+         {
+            BuildableWall bw = new BuildableWall(tileX, tileY, id);
+            BuildWallCommand bwc = new BuildWallCommand(bw);
+
+            bwc.execute();
+
+            builtWalls.push(bwc);
+
+         }
+      }
    }
 
    void undoBuildableWall()
