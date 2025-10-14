@@ -1,7 +1,12 @@
 //thread that triggers gradual map changes right after a bomb is planted
+
+import java.util.Stack;
+
 class MapUpdatesThrowerHandler implements ThrowerHandler {
    boolean bombPlanted;
    int id, l, c;
+
+   private final Stack<BuildWallCommand> builtWalls = new Stack<>();
 
    MapUpdatesThrowerHandler(int id) {
       this.id = id;
@@ -18,10 +23,54 @@ class MapUpdatesThrowerHandler implements ThrowerHandler {
       this.bombPlanted = true;
    }
 
+   void setBuildableWall(int x, int y)
+   {
+      x += Const.WIDTH_SPRITE_PLAYER / 2;
+      y += 2 * Const.HEIGHT_SPRITE_PLAYER / 3;
+
+      int wc = x/Const.SIZE_SPRITE_MAP;
+      int wl = y/Const.SIZE_SPRITE_MAP;
+
+      if (Server.map[wl][wc].img.equals("floor-1"))
+      {
+         BuildableWall bw = new BuildableWall(wc, wl, id);
+         BuildWallCommand bwc = new BuildWallCommand(bw);
+
+         bwc.execute();
+
+         builtWalls.push(bwc);
+
+      }
+
+   }
+
+   void undoBuildableWall()
+   {
+      if (!builtWalls.empty())
+      {
+         BuildWallCommand bwc = builtWalls.pop();
+         bwc.undo();
+      }
+
+   }
+
    //changes the map on server and client
    static void changeMap(String keyWord, int l, int c) {
       Server.map[l][c].img = keyWord;
       ClientManager.sendToAllClients("-1 mapUpdate " + keyWord + " " + l + " " + c);
+   }
+
+   static boolean isBlockOwnedByPlayer(int id, int l, int c)
+   {
+      String tile = Server.map[l][c].img;
+      String[] sp = tile.split("-");
+
+      String col = Sprite.personColors[id];
+
+      if (sp.length > 1)
+          return sp[0].equals("block") && sp[1].equals(col);
+
+      return false;
    }
 
    int getColumnOfMap(int x) {
@@ -101,6 +150,7 @@ class MapUpdatesThrowerHandler implements ThrowerHandler {
 
             Server.player[id].numberOfBombs++; //release bomb
          }
+
          try {Thread.sleep(0);} catch (InterruptedException e) {}
       }
    }

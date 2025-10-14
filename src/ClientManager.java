@@ -56,7 +56,8 @@ class ClientManager extends Thread {
    while (in.hasNextLine()) { // connection established with client this.id
          String str[] = in.nextLine().split(" ");
          
-         if (str[0].equals("keyCodePressed") && Server.player[id].alive) {    
+         if (str[0].equals("keyCodePressed") && Server.player[id].alive)
+         {
             ct.keyCodePressed(Integer.parseInt(str[1]));
          } 
          else if (str[0].equals("keyCodeReleased") && Server.player[id].alive) {
@@ -65,6 +66,14 @@ class ClientManager extends Thread {
          else if (str[0].equals("pressedSpace") && Server.player[id].numberOfBombs >= 1) {
             Server.player[id].numberOfBombs--;
             mt.setBombPlanted(Integer.parseInt(str[1]), Integer.parseInt(str[2]));
+         }
+         else if (str[0].equals("build_wall") && Server.player[id].alive)
+         {
+            mt.setBuildableWall(Integer.parseInt(str[1]), Integer.parseInt(str[2]));
+         }
+         else if (str[0].equals("removing_wall") && Server.player[id].alive)
+         {
+            mt.undoBuildableWall();
          }
          else if (str[0].equals("shoot") && Server.player[id].alive) {
             int startX = Server.player[id].x + Const.WIDTH_SPRITE_PLAYER / 2;

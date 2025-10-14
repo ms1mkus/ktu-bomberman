@@ -17,7 +17,8 @@ public class Sprite {
    final static String mapKeyWords[] = { 
       "background", 
       "block", 
-      "block-on-fire-1", "block-on-fire-2", "block-on-fire-3", "block-on-fire-4", "block-on-fire-5", "block-on-fire-6", 
+      "block-on-fire-1", "block-on-fire-2", "block-on-fire-3", "block-on-fire-4", "block-on-fire-5", "block-on-fire-6",
+      "block-white", "block-black", "block-red", "block-yellow",
       "bomb-icone-1", "bomb-icone-2", 
       "bomb-red-icone-1", "bomb-red-icone-2", 
       "bomb-planted-1", "bomb-planted-2", "bomb-planted-3", 
@@ -48,6 +49,24 @@ public class Sprite {
       "wait-0", "wait-1", "wait-2", "wait-3", "wait-4", 
       "win-0", "win-1", "win-2", "win-3", "win-4"
    };
+
+   static String getPersonSpriteFaceDirection(String status)
+   {
+
+      String[] tokens = status.split("-");
+      if (tokens.length != 2)
+      {
+         throw new IllegalArgumentException("Bad status name: " + status);
+      }
+
+       return switch (tokens[0]) {
+           case "left" -> "left";
+           case "right" -> "right";
+           case "up" -> "up";
+           default -> "down";
+       };
+
+   }
    
    final static Hashtable<String, Integer> maxLoopStatus = new Hashtable<String, Integer>();
    static void setMaxLoopStatus() {
