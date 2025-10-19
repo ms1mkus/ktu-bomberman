@@ -32,7 +32,7 @@ public class Sprite {
       "left-explosion-1", "left-explosion-2", "left-explosion-3", "left-explosion-4", "left-explosion-5", 
       "mid-hori-explosion-1", "mid-hori-explosion-2", "mid-hori-explosion-3", "mid-hori-explosion-4", "mid-hori-explosion-5", 
       "mid-vert-explosion-1", "mid-vert-explosion-2", "mid-vert-explosion-3", "mid-vert-explosion-4", "mid-vert-explosion-5", 
-      "wall-center", "wall-down-left", "wall-down-right", "wall-up-left", "wall-up-right" 
+      "wall-center", "wall-down-left", "wall-down-right", "wall-up-left", "wall-up-right", "powerup-bigbomb", "powerup-speedboost", "powerup-ghost"
    };
    
    final static String bulletKeyWords[] = {

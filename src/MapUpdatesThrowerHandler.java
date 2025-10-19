@@ -93,6 +93,21 @@ class MapUpdatesThrowerHandler implements ThrowerHandler {
       return y / Const.SIZE_SPRITE_MAP;
    }
 
+   private void spawnRandomPowerUp(int l, int c) {
+   if (Math.random() < 0.5) {
+      double random = Math.random();
+      if (random < 0.5) {
+         changeMap("powerup-bigbomb", l, c);
+      } 
+      else if (random < 0.8) {
+         changeMap("powerup-speedboost", l, c);
+      } 
+      else {
+         changeMap("powerup-ghost", l, c);
+      }
+   }
+}
+
    // checks if the fire hit any standing player (center body coordinate)
    void checkIfExplosionKilledSomeone(int linSprite, int colSprite) {
       int linPlayer, colPlayer, x, y;
@@ -124,48 +139,100 @@ class MapUpdatesThrowerHandler implements ThrowerHandler {
                   Thread.sleep(Const.RATE_BOMB_UPDATE);
                } catch (InterruptedException e) {}
             }
-
+            int range = Server.player[id].getExplosionRange();
+            boolean usedBigBomb = Server.player[id].useBigBombPowerUp();
+            
             //explosion effects
             new Thrower("center-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l, c).start();
             checkIfExplosionKilledSomeone(l, c);
-            
-            //below
-            if (Server.map[l+1][c].img.equals("floor-1")) {
-               new Thrower("down-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l+1, c).start();
+
+            // DOWN - First block
+            if (l+1 < Server.map.length && Server.map[l+1][c].img.equals("floor-1")) {
+               new Thrower(range > 1 ? "mid-vert-explosion" : "down-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l+1, c).start();
                checkIfExplosionKilledSomeone(l+1, c);
-            }
-            else if (Server.map[l+1][c].img.contains("block"))
-               new Thrower("block-on-fire", Const.indexBlockOnFire, Const.RATE_BLOCK_UPDATE, l+1, c).start();
 
-            //to the right
-            if (Server.map[l][c+1].img.equals("floor-1")) {
-               new Thrower("right-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l, c+1).start();
+               // DOWN - Second block (only for BigBomb)
+               if (range > 1 && l+2 < Server.map.length && Server.map[l+2][c].img.equals("floor-1")) {
+                  new Thrower("down-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l+2, c).start();
+                  checkIfExplosionKilledSomeone(l+2, c);
+               }
+            }
+            else if (l+1 < Server.map.length && Server.map[l+1][c].img.contains("block")) {
+               new Thrower("block-on-fire", Const.indexBlockOnFire, Const.RATE_BLOCK_UPDATE, l+1, c) {
+                  @Override
+                  public void run() {
+                     super.run();
+                     spawnRandomPowerUp(l, c);
+                  }
+               }.start();
+            }
+
+            // RIGHT - First block
+            if (c+1 < Server.map[0].length && Server.map[l][c+1].img.equals("floor-1")) {
+               new Thrower(range > 1 ? "mid-hori-explosion" : "right-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l, c+1).start();
                checkIfExplosionKilledSomeone(l, c+1);
+                    
+               // RIGHT - Second block (only for BigBomb)
+               if (range > 1 && c+2 < Server.map[0].length && Server.map[l][c+2].img.equals("floor-1")) {
+                  new Thrower("right-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l, c+2).start();
+                  checkIfExplosionKilledSomeone(l, c+2);
+               }
             }
-            else if (Server.map[l][c+1].img.contains("block"))
-               new Thrower("block-on-fire", Const.indexBlockOnFire, Const.RATE_BLOCK_UPDATE, l, c+1).start();
+            else if (c+1 < Server.map[0].length && Server.map[l][c+1].img.contains("block")) {
+               new Thrower("block-on-fire", Const.indexBlockOnFire, Const.RATE_BLOCK_UPDATE, l, c+1) {
+                  @Override
+                  public void run() {
+                     super.run();
+                     spawnRandomPowerUp(l, c);
+                  }
+               }.start();
+            }
 
-            //above
-            if (Server.map[l-1][c].img.equals("floor-1")) {
-               new Thrower("up-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l-1, c).start();
+            // UP - First block
+            if (l-1 >= 0 && Server.map[l-1][c].img.equals("floor-1")) {
+               new Thrower(range > 1 ? "mid-vert-explosion" : "up-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l-1, c).start();
                checkIfExplosionKilledSomeone(l-1, c);
+                    
+               // UP - Second block (only for BigBomb)
+               if (range > 1 && l-2 >= 0 && Server.map[l-2][c].img.equals("floor-1")) {
+                  new Thrower("up-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l-2, c).start();
+                  checkIfExplosionKilledSomeone(l-2, c);
+               }
             }
-            else if (Server.map[l-1][c].img.contains("block"))
-               new Thrower("block-on-fire", Const.indexBlockOnFire, Const.RATE_BLOCK_UPDATE, l-1, c).start();
+            else if (l-1 >= 0 && Server.map[l-1][c].img.contains("block")) {
+               new Thrower("block-on-fire", Const.indexBlockOnFire, Const.RATE_BLOCK_UPDATE, l-1, c) {
+                  @Override
+                  public void run() {
+                     super.run();
+                     spawnRandomPowerUp(l, c);
+                  }
+               }.start();
+            }
 
-            //to the left   
-            if (Server.map[l][c-1].img.equals("floor-1")) {
-               new Thrower("left-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l, c-1).start();
+            // LEFT - First block
+            if (c-1 >= 0 && Server.map[l][c-1].img.equals("floor-1")) {
+               new Thrower(range > 1 ? "mid-hori-explosion" : "left-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l, c-1).start();
                checkIfExplosionKilledSomeone(l, c-1);
+                    
+               // LEFT - Second block (only for BigBomb)
+               if (range > 1 && c-2 >= 0 && Server.map[l][c-2].img.equals("floor-1")) {
+                  new Thrower("left-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l, c-2).start();
+                  checkIfExplosionKilledSomeone(l, c-2);
+               }
             }
-            else if (Server.map[l][c-1].img.contains("block"))
-               new Thrower("block-on-fire", Const.indexBlockOnFire, Const.RATE_BLOCK_UPDATE, l, c-1).start();
+            else if (c-1 >= 0 && Server.map[l][c-1].img.contains("block")) {
+               new Thrower("block-on-fire", Const.indexBlockOnFire, Const.RATE_BLOCK_UPDATE, l, c-1) {
+                  @Override
+                  public void run() {
+                     super.run();
+                     spawnRandomPowerUp(l, c);
+                  }
+               }.start();
+            }
 
-            Server.player[id].numberOfBombs++; //release bomb
-         }
-
-         try {Thread.sleep(0);} catch (InterruptedException e) {}
-      }
-   }
+            Server.player[id].numberOfBombs++; // release bomb
+            }
+            try {Thread.sleep(0);} catch (InterruptedException e) {}
+        }
+    }
 }
-

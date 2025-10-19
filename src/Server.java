@@ -9,12 +9,46 @@ class PlayerData {
    int x, y; //current coordinate
    int numberOfBombs;
 
+   PlayerAbilities abilities;
+
    PlayerData(int x, int y) {
       this.x = x;
       this.y = y;
       this.logged = false;
       this.alive = false;
-   this.numberOfBombs = 1; // for 2 bombs, each bomb must be handled in a separate thread
+      this.numberOfBombs = 1; // for 2 bombs, each bomb must be handled in a separate thread
+      this.abilities = new BasicPlayer();
+   }
+
+   public void addGhost() {
+      this.abilities = new GhostDecorator(this.abilities);
+   }
+
+   public void addBigBomb() {
+      this.abilities = new BigBombDecorator(abilities);
+   }
+
+   public void addSpeedBoost() {
+      this.abilities = new SpeedBoostDecorator(abilities);
+   }
+
+   public int getExplosionRange() {
+      return abilities.getExplosionRange();
+   }
+
+   public int getMovementSpeed() {
+      return abilities.getMovementSpeed();
+   }
+   
+   public boolean useBigBombPowerUp() {
+      if (abilities instanceof BigBombDecorator) {
+         BigBombDecorator decorator = (BigBombDecorator) abilities;
+         if (!decorator.isUsed()) {
+            decorator.useBigBomb();
+            return true;
+         }
+      }
+      return false;
    }
 }
 

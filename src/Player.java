@@ -1,3 +1,4 @@
+import java.awt.AlphaComposite;
 import java.awt.Graphics;
 import javax.swing.JPanel;
 
@@ -8,6 +9,8 @@ public class Player {
    JPanel panel;
    boolean alive;
 
+   PlayerAbilities abilities;
+
    StatusChanger sc;
 
    Player(int id, JPanel panel) throws InterruptedException {
@@ -16,14 +19,49 @@ public class Player {
       this.color = Sprite.personColors[id];
       this.panel = panel;
       this.alive = Client.alive[id];
+      this.abilities = new BasicPlayer();
 
       (sc = new StatusChanger(this, "wait")).start();
    }
 
    public void draw(Graphics g) {
       if (alive) {
-         g.drawImage(Sprite.ht.get(color + "/" + status), x, y, Const.WIDTH_SPRITE_PLAYER, Const.HEIGHT_SPRITE_PLAYER, null);
+         // Apply transparency if player is in ghost mode (for other players)
+         if (this != Game.getInstance().getYou() && isGhost()) {
+            java.awt.Graphics2D g2d = (java.awt.Graphics2D) g;
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.1f));
+            g.drawImage(Sprite.ht.get(color + "/" + status), x, y, Const.WIDTH_SPRITE_PLAYER, Const.HEIGHT_SPRITE_PLAYER, null);
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+         } 
+         else {
+            // Draw normally
+            g.drawImage(Sprite.ht.get(color + "/" + status), x, y, Const.WIDTH_SPRITE_PLAYER, Const.HEIGHT_SPRITE_PLAYER, null);
+         }
       }
+   }
+
+   public void addGhost() {
+      this.abilities = new GhostDecorator(this.abilities);
+   }
+
+   public boolean isGhost() {
+      return abilities.isGhost();
+   }
+
+   public void addBigBomb() {
+      this.abilities = new BigBombDecorator(abilities);
+   }
+
+   public int getExplosionRange() {
+      return abilities.getExplosionRange();
+   }
+   
+   public int getMovementSpeed() {
+      return abilities.getMovementSpeed();
+   }
+
+   public void addSpeedBoost() {
+      this.abilities = new SpeedBoostDecorator(abilities);
    }
 }
 

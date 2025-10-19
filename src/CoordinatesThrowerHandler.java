@@ -18,25 +18,62 @@ class CoordinatesThrowerHandler implements ThrowerHandler
       
       while (true) {
          if (up || down || right || left) {
-            if (up)           newY = Server.player[id].y - Const.RESIZE;
-            else if (down)    newY = Server.player[id].y + Const.RESIZE;
-            else if (right)   newX = Server.player[id].x + Const.RESIZE;
-            else if (left)    newX = Server.player[id].x - Const.RESIZE;
+            int speedMultiplier = Server.player[id].getMovementSpeed();
+            int moveDistance = Const.RESIZE * speedMultiplier;
+            
+            if (up)           newY = Server.player[id].y - moveDistance;
+            else if (down)    newY = Server.player[id].y + moveDistance;
+            else if (right)   newX = Server.player[id].x + moveDistance;
+            else if (left)    newX = Server.player[id].x - moveDistance;
 
             if (coordinateIsValid(newX, newY)) {
-               ClientManager.sendToAllClients(id + " newCoordinate " + newX + " " + newY);
-
+               
                Server.player[id].x = newX;
                Server.player[id].y = newY;
+
+               checkPowerUpCollection(newX, newY);
+               ClientManager.sendToAllClients(id + " newCoordinate " + newX + " " + newY);
+
             } else {
                newX = Server.player[id].x;
                newY = Server.player[id].y;
             }
             try {
-               Thread.sleep(Const.RATE_COORDINATES_UPDATE);
+               Thread.sleep(Const.RATE_COORDINATES_UPDATE / speedMultiplier);
             } catch (InterruptedException e) {}
          }
          try {Thread.sleep(0);} catch (InterruptedException e) {}
+      }
+   }
+
+   private void checkPowerUpCollection(int playerX, int playerY) {
+      int startCol = getColumnOfMap(playerX + Const.VAR_X_SPRITES);
+      int startLine = getLineOfMap(playerY + Const.VAR_Y_SPRITES);
+      int endCol = getColumnOfMap(playerX + Const.VAR_X_SPRITES + Const.SIZE_SPRITE_MAP - 1);
+      int endLine = getLineOfMap(playerY + Const.VAR_Y_SPRITES + Const.SIZE_SPRITE_MAP - 1);
+   
+      // Check all tiles the player is on
+      for (int line = startLine; line <= endLine; line++) {
+         for (int col = startCol; col <= endCol; col++) {
+            if (Server.map[line][col].img.equals("powerup-bigbomb")) {                
+               Server.player[id].addBigBomb();
+               MapUpdatesThrowerHandler.changeMap("floor-1", line, col);
+               ClientManager.sendToAllClients(id + " powerUp bigbomb");
+               return;
+            }
+            else if (Server.map[line][col].img.equals("powerup-speedboost")) {
+               Server.player[id].addSpeedBoost();
+               MapUpdatesThrowerHandler.changeMap("floor-1", line, col);
+               ClientManager.sendToAllClients(id + " powerUp speedboost");
+               return;
+            }
+            else if (Server.map[line][col].img.equals("powerup-ghost")) {
+               Server.player[id].addGhost();
+               MapUpdatesThrowerHandler.changeMap("floor-1", line, col);
+               ClientManager.sendToAllClients(id + " powerUp ghost");
+               return;
+            }
+         }
       }
    }
 
@@ -87,10 +124,10 @@ class CoordinatesThrowerHandler implements ThrowerHandler
       }
 
       if (
-         (Server.map[l[0]][c[0]].img.equals("floor-1") || Server.map[l[0]][c[0]].img.contains("explosion")) && 
-         (Server.map[l[1]][c[1]].img.equals("floor-1") || Server.map[l[1]][c[1]].img.contains("explosion")) &&
-         (Server.map[l[2]][c[2]].img.equals("floor-1") || Server.map[l[2]][c[2]].img.contains("explosion")) && 
-         (Server.map[l[3]][c[3]].img.equals("floor-1") || Server.map[l[3]][c[3]].img.contains("explosion"))
+         (Server.map[l[0]][c[0]].img.equals("floor-1") || Server.map[l[0]][c[0]].img.contains("explosion") || Server.map[l[0]][c[0]].img.startsWith("powerup-")) && 
+         (Server.map[l[1]][c[1]].img.equals("floor-1") || Server.map[l[1]][c[1]].img.contains("explosion") || Server.map[l[0]][c[0]].img.startsWith("powerup-")) &&
+         (Server.map[l[2]][c[2]].img.equals("floor-1") || Server.map[l[2]][c[2]].img.contains("explosion") || Server.map[l[0]][c[0]].img.startsWith("powerup-")) && 
+         (Server.map[l[3]][c[3]].img.equals("floor-1") || Server.map[l[3]][c[3]].img.contains("explosion") || Server.map[l[0]][c[0]].img.startsWith("powerup-"))
       ) 
          return true; //will be in a valid coordinate
 

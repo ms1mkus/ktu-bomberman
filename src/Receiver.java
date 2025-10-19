@@ -50,6 +50,24 @@ public class Receiver extends Thread {
          else if (str.equals("playerJoined")) {
             p.alive = true;
          }
+         else if (str.equals("powerUp")) {
+            String powerUpType = Client.in.next();
+            if (powerUpType.equals("bigbomb")) {
+               p.addBigBomb();
+            }
+            else if (powerUpType.equals("speedboost")) {
+               p.addSpeedBoost();
+            }
+            else if (powerUpType.equals("ghost")) {
+               p.addGhost();
+            }
+         }
+         else if (str.equals("powerUpUsed")) {
+            String powerUpType = Client.in.next();
+            if (powerUpType.equals("bigbomb")) {
+               p.abilities = new BasicPlayer();
+            }
+         }
       }
       Client.in.close();
    }
