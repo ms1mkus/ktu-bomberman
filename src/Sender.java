@@ -6,10 +6,10 @@ public class Sender extends KeyAdapter {
    
    public void keyPressed(KeyEvent e) {
       if (e.getKeyCode() == KeyEvent.VK_SPACE) // dropping a bomb
-         Client.out.println("pressedSpace " + Game.getInstance().getYou().x + " " + Game.getInstance().getYou().y);
+         Client.out.println("pressedSpace " + Game.you.x + " " + Game.you.y);
       else if (e.getKeyCode() == KeyEvent.VK_C)  // building a wall
       {
-         String dir = Sprite.getPersonSpriteFaceDirection(Game.getInstance().getYou().status);
+         String dir = Sprite.getPersonSpriteFaceDirection(Game.you.status);
 
          Client.out.println("build_wall " + dir);
       }

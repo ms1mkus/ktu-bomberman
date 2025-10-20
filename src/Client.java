@@ -8,7 +8,6 @@ import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
 public class Client {
-   private static Client instance = null;
 
    private Socket socket = null;
    static PrintStream out = null;
@@ -21,7 +20,7 @@ public class Client {
    static Coordinate spawn[] = new Coordinate[Const.QTY_PLAYERS];
    static boolean alive[] = new boolean[Const.QTY_PLAYERS];
 
-   private Client(String host, int porta) {
+   Client(String host, int porta) {
       try {
          System.out.print("Establishing connection with server...");
          this.socket = new Socket(host, porta);
@@ -42,13 +41,6 @@ public class Client {
       new Receiver().start();
    }
 
-   public static Client getInstance(String host, int porta) {
-      if (instance == null){
-         instance = new Client(host, porta);
-      }
-      return instance;
-   }
-
    void receiveInitialSettings() {
       id = in.nextInt();
 
@@ -67,7 +59,7 @@ public class Client {
             }
    
    public static void main(String[] args) {
-      Client.getInstance("127.0.0.1", 8383);
+      new Client("127.0.0.1", 8383);
       new Window();
    }
 }
@@ -79,7 +71,7 @@ class Window extends JFrame {
       Sprite.loadImages();
       Sprite.setMaxLoopStatus();
       
-      add(Game.getInstance(Const.COL*Const.SIZE_SPRITE_MAP, Const.LIN*Const.SIZE_SPRITE_MAP));
+      add(new Game(Const.COL*Const.SIZE_SPRITE_MAP, Const.LIN*Const.SIZE_SPRITE_MAP));
       setTitle("bomberman");
       pack();
       setVisible(true);

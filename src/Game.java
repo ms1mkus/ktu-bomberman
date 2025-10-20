@@ -3,15 +3,13 @@ import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
 public class Game extends JPanel {
-   private static Game instance = null;
 
    private static final long serialVersionUID = 1L;
-   private Player you, enemy1, enemy2, enemy3;
+   static Player you, enemy1, enemy2, enemy3;
    private static java.util.HashMap<Long, BulletData> activeBullets = new java.util.HashMap<>();
    
    private boolean mousePressed = false;
@@ -28,7 +26,7 @@ public class Game extends JPanel {
       }
    }
 
-   private Game(int width, int height) {
+   Game(int width, int height) {
       setPreferredSize(new Dimension(width, height));
       
       addMouseListener(new MouseAdapter() {
@@ -75,19 +73,6 @@ public class Game extends JPanel {
       System.out.print(" ok\n");
 
       System.out.println("My player: " + Sprite.personColors[Client.id]);
-   }
-   // Get single instance of Game
-   public static Game getInstance(int width, int height) {
-      if (instance == null){
-         instance = new Game(width, height);
-      }
-      return instance;
-   }
-   public static Game getInstance() {
-      if (instance == null){
-         System.out.println("Game instance not created yet.");
-      }
-      return instance;
    }
 
    //draws components, called by paint() and repaint()
@@ -230,21 +215,5 @@ public class Game extends JPanel {
          shootingThread.interrupt();
          shootingThread = null;
       }
-   }
-
-   public Player getYou() {
-      return you;
-   }
-
-   public Player getEnemy1() {
-      return enemy1;
-   }
-
-   public Player getEnemy2() {
-      return enemy2;
-   }
-
-   public Player getEnemy3() {
-      return enemy3;
    }
 }

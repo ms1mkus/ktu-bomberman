@@ -105,13 +105,12 @@ class ServerConfig
 }
 
 class Server {
-   private static Server instance = null;
    private ServerConfig config = null;
    static PlayerData[] player = null;
    static Coordinate[][] map = null;
 
    
-   private Server(int portNumber) {
+   Server(int portNumber) {
 
       this.config = new ServerConfig();
 
@@ -136,13 +135,6 @@ class Server {
          System.out.println("Error: " + e + "\n");
          System.exit(1);
       }
-   }
-   // Get single instance of Server
-   public static Server getInstance(int portNumber) {
-      if (instance == null){
-         instance = new Server(portNumber);
-      }
-      return instance;
    }
 
    boolean loggedIsFull() {
@@ -196,6 +188,6 @@ class Server {
    }
 
    public static void main(String[] args) {
-      Server.getInstance(8383);
+      new Server(8383);
    }
 }

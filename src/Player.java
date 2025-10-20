@@ -27,7 +27,7 @@ public class Player {
    public void draw(Graphics g) {
       if (alive) {
          // Apply transparency if player is in ghost mode (for other players)
-         if (this != Game.getInstance().getYou() && isGhost()) {
+         if (this != Game.you && isGhost()) {
             java.awt.Graphics2D g2d = (java.awt.Graphics2D) g;
             g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.1f));
             g.drawImage(Sprite.ht.get(color + "/" + status), x, y, Const.WIDTH_SPRITE_PLAYER, Const.HEIGHT_SPRITE_PLAYER, null);
@@ -91,7 +91,7 @@ class StatusChanger extends Thread {
 
          if (p.status.equals("dead-4")) {
             p.alive = false;
-            if (Game.getInstance().getYou() == p)
+            if (Game.you == p)
                System.exit(1);
          }
       }
