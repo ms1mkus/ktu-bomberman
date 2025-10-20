@@ -55,6 +55,12 @@ class CoordinatesThrowerHandler implements ThrowerHandler
       // Check all tiles the player is on
       for (int line = startLine; line <= endLine; line++) {
          for (int col = startCol; col <= endCol; col++) {
+            // Give priority to potions that spawned from destroyed blocks
+            if (PotionManager.hasPotionOnGround(line, col)) {
+               if (PotionManager.pickUpIfPresent(id, line, col)) {
+                  return;
+               }
+            }
             if (Server.map[line][col].img.equals("powerup-bigbomb")) {                
                Server.player[id].addBigBomb();
                MapUpdatesThrowerHandler.changeMap("floor-1", line, col);
@@ -124,10 +130,10 @@ class CoordinatesThrowerHandler implements ThrowerHandler
       }
 
       if (
-         (Server.map[l[0]][c[0]].img.equals("floor-1") || Server.map[l[0]][c[0]].img.contains("explosion") || Server.map[l[0]][c[0]].img.startsWith("powerup-")) && 
-         (Server.map[l[1]][c[1]].img.equals("floor-1") || Server.map[l[1]][c[1]].img.contains("explosion") || Server.map[l[0]][c[0]].img.startsWith("powerup-")) &&
-         (Server.map[l[2]][c[2]].img.equals("floor-1") || Server.map[l[2]][c[2]].img.contains("explosion") || Server.map[l[0]][c[0]].img.startsWith("powerup-")) && 
-         (Server.map[l[3]][c[3]].img.equals("floor-1") || Server.map[l[3]][c[3]].img.contains("explosion") || Server.map[l[0]][c[0]].img.startsWith("powerup-"))
+         (isPassable(l[0], c[0])) && 
+         (isPassable(l[1], c[1])) &&
+         (isPassable(l[2], c[2])) && 
+         (isPassable(l[3], c[3]))
       ) 
          return true; //will be in a valid coordinate
 
@@ -170,6 +176,11 @@ class CoordinatesThrowerHandler implements ThrowerHandler
          return true; //was on a bomb just planted, needs to move away
       
       return false;
+   }
+
+   private boolean isPassable(int line, int col) {
+      String img = Server.map[line][col].img;
+      return img.equals("floor-1") || img.contains("explosion") || img.startsWith("powerup-") || img.startsWith("potion-");
    }
 
    void keyCodePressed(int keyCode) {

@@ -17,14 +17,32 @@ public class Game extends JPanel {
    private Thread shootingThread = null;
    
    private static class BulletData {
-      int x, y, direction;
+      int x, y;
       String spriteType;
       
-      BulletData(int x, int y, int direction, String spriteType) {
-         this.x = x; this.y = y; this.direction = direction; 
+      BulletData(int x, int y, String spriteType) {
+         this.x = x; this.y = y; 
          this.spriteType = spriteType;
       }
    }
+
+   private static class PotionEffectViz {
+      int x, y, radius;
+      long startTime;
+      long endTime;
+      int durationMs;
+      java.awt.Color color;
+      String type; // HEALING or POISON
+      PotionEffectViz(int x, int y, int radius, int durationMs, java.awt.Color color) {
+         this.x = x; this.y = y; this.radius = radius;
+         this.durationMs = Math.max(1, durationMs);
+         this.startTime = System.currentTimeMillis();
+         this.endTime = this.startTime + this.durationMs;
+         this.color = color;
+      }
+      boolean isActive() { return System.currentTimeMillis() < endTime; }
+   }
+   private static java.util.List<PotionEffectViz> effectVizes = new java.util.ArrayList<>();
 
    Game(int width, int height) {
       setPreferredSize(new Dimension(width, height));
@@ -36,10 +54,12 @@ public class Game extends JPanel {
                mousePressed = true;
                mouseX = e.getX();
                mouseY = e.getY();
-               
-               Client.out.println("shoot " + mouseX + " " + mouseY);
-               
-               startContinuousShooting();
+               if (e.getButton() == MouseEvent.BUTTON2) { // middle click throws potion once
+                  Client.out.println("throw_potion " + mouseX + " " + mouseY);
+               } else {
+                  Client.out.println("shoot " + mouseX + " " + mouseY);
+                  startContinuousShooting();
+               }
             }
          }
          
@@ -81,6 +101,7 @@ public class Game extends JPanel {
       drawMap(g);
       drawBlockHealth(g);
       drawBullets(g);
+      drawPotionEffects(g);
       enemy1.draw(g);
       enemy2.draw(g);
       enemy3.draw(g);
@@ -88,6 +109,37 @@ public class Game extends JPanel {
       
       // System.out.format("%s: %s [%04d, %04d]\n", Game.you.color, Game.you.status, Game.you.x, Game.you.y);;
       Toolkit.getDefaultToolkit().sync();
+   }
+
+   void drawPotionEffects(Graphics g) {
+      java.util.Iterator<PotionEffectViz> it = effectVizes.iterator();
+      while (it.hasNext()) {
+         PotionEffectViz v = it.next();
+         if (!v.isActive()) { it.remove(); continue; }
+         // Try to draw animated splash frames if present; otherwise fallback to colored circle
+         String base = v.type != null && v.type.equals("HEALING") ? "potion/potion-healing-" : "potion/potion-poison-";
+         int frames = 0;
+         // find frame count by probing existing keys once (cache omitted for simplicity)
+         for (int i = 1; i <= 12; i++) {
+            if (Sprite.ht.get(base + i) != null) frames++; else break;
+         }
+         if (frames > 0) {
+            long now = System.currentTimeMillis();
+            long elapsed = Math.max(0, now - v.startTime);
+            double fraction = Math.max(0.0, Math.min(1.0, (double) elapsed / (double) v.durationMs));
+            int frame = (int)Math.floor(fraction * frames);
+            frame = Math.max(0, Math.min(frames - 1, frame)) + 1;
+            java.awt.Image img = Sprite.ht.get(base + frame);
+            if (img != null) {
+               int size = v.radius * 2;
+               g.drawImage(img, v.x - v.radius, v.y - v.radius, size, size, null);
+               continue;
+            }
+         }
+         java.awt.Graphics2D g2d = (java.awt.Graphics2D) g;
+         g2d.setColor(new java.awt.Color(v.color.getRed(), v.color.getGreen(), v.color.getBlue(), 90));
+         g2d.fillOval(v.x - v.radius, v.y - v.radius, v.radius * 2, v.radius * 2);
+      }
    }
    
    void drawMap(Graphics g) {
@@ -162,10 +214,10 @@ public class Game extends JPanel {
          long bulletId = Long.parseLong(parts[1]);
          int x = Integer.parseInt(parts[2]);
          int y = Integer.parseInt(parts[3]);
-         int direction = Integer.parseInt(parts[4]);
+         /* int direction = */ Integer.parseInt(parts[4]); // ignore direction for rendering
          String spriteType = parts[5];
          
-         activeBullets.put(bulletId, new BulletData(x, y, direction, spriteType));
+         activeBullets.put(bulletId, new BulletData(x, y, spriteType));
       } else if (action.equals("move")) {
          long bulletId = Long.parseLong(parts[1]);
          int x = Integer.parseInt(parts[2]);
@@ -180,6 +232,13 @@ public class Game extends JPanel {
          long bulletId = Long.parseLong(parts[1]);
          activeBullets.remove(bulletId);
       }
+   }
+
+   static void handlePotionEffect(String type, int x, int y, int radius, int duration) {
+      java.awt.Color color = type.equals("HEALING") ? new java.awt.Color(50,205,50) : new java.awt.Color(148,0,211);
+      PotionEffectViz v = new PotionEffectViz(x, y, radius, duration, color);
+      v.type = type;
+      effectVizes.add(v);
    }
    
    static void handleBlockHealth(String blockKey, int health) {

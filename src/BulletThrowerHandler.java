@@ -93,7 +93,20 @@ class BulletThrowerHandler implements ThrowerHandler {
                 ClientManager.sendToAllClients("-1 blockHealth " + blockKey + " " + currentHealth);
                 
                 if (currentHealth <= 0) {
-                    new Thrower("block-on-fire", Const.indexBlockOnFire, Const.RATE_BLOCK_UPDATE, mapY, mapX).start();
+                    new Thrower("block-on-fire", Const.indexBlockOnFire, Const.RATE_BLOCK_UPDATE, mapY, mapX) {
+                        @Override
+                        public void run() {
+                            super.run();
+                            // After destruction, spawn a potion occasionally
+                            RandomGenerator rng = RandomGenerator.getInstance();
+                            if (rng.checkProbability(0.5)) {
+                                Potion.Type t = rng.nextDouble() < 0.5 ? Potion.Type.HEALING : Potion.Type.POISON;
+                                PotionManager.spawnPotionOnGround(mapY, mapX, t);
+                            } else {
+                                MapUpdatesThrowerHandler.changeMap("floor-1", mapY, mapX);
+                            }
+                        }
+                    }.start();
                 }
                 
                 return penetration < 1.0;
@@ -166,8 +179,8 @@ class BulletThrowerHandler implements ThrowerHandler {
     }
     
     private class BulletMovementThread extends Thread {
-        private long bulletId;
-        private int targetX, targetY, direction, speed, damage;
+    private long bulletId;
+    private int targetX, targetY, speed, damage;
         private int[] pos;
         private double velocityX, velocityY;
         private Bullet bullet;
@@ -176,7 +189,6 @@ class BulletThrowerHandler implements ThrowerHandler {
             this.bulletId = bulletId;
             this.targetX = targetX;
             this.targetY = targetY;
-            this.direction = direction;
             this.speed = speed;
             this.damage = damage;
             this.bullet = bullet;

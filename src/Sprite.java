@@ -31,13 +31,37 @@ public class Sprite {
       "item-destruction-1", "item-destruction-2", "item-destruction-3", "item-destruction-4", "item-destruction-5", "item-destruction-6", "item-destruction-7", 
       "left-explosion-1", "left-explosion-2", "left-explosion-3", "left-explosion-4", "left-explosion-5", 
       "mid-hori-explosion-1", "mid-hori-explosion-2", "mid-hori-explosion-3", "mid-hori-explosion-4", "mid-hori-explosion-5", 
-      "mid-vert-explosion-1", "mid-vert-explosion-2", "mid-vert-explosion-3", "mid-vert-explosion-4", "mid-vert-explosion-5", 
-      "wall-center", "wall-down-left", "wall-down-right", "wall-up-left", "wall-up-right", "powerup-bigbomb", "powerup-speedboost", "powerup-ghost"
+   "mid-vert-explosion-1", "mid-vert-explosion-2", "mid-vert-explosion-3", "mid-vert-explosion-4", "mid-vert-explosion-5", 
+   "wall-center", "wall-down-left", "wall-down-right", "wall-up-left", "wall-up-right", "powerup-bigbomb", "powerup-speedboost", "powerup-ghost",
+   // potion ground tiles (user-provided art)
+   "potion-healing", "potion-poison"
    };
    
    final static String bulletKeyWords[] = {
       "minigun-1", "shotgun-1", "tornado-1"
    };
+   
+   // We'll dynamically load potion splash frames from resources/images/map/basic/
+   // and store them under keys like "potion/potion-healing-1" so Game can find them.
+   private static void loadPotionFrames() {
+      String[] types = {"potion-healing", "potion-poison"};
+      int maxFrames = 12; // upper bound; will stop when first missing frame encountered per type
+      for (String type : types) {
+         for (int i = 1; i <= maxFrames; i++) {
+            String key = "potion/" + type + "-" + i;
+            File f = new File(Const.BOMBERMAN_RESOURCES_DIR + "images/map/basic/" + type + "-" + i + ".png");
+            if (!f.exists()) {
+               break; // stop at first missing frame for this type
+            }
+            try {
+               ht.put(key, ImageIO.read(f));
+            } catch (IOException ignored) {
+               break;
+            }
+         }
+         // It's okay if none are loaded for one type; code will fallback to color circle
+      }
+   }
    //already in spritesheet order for use with autoCropAndRename.cpp
    static final String personKeyWords[] = {
       "dead-0", "dead-1", "dead-2", "dead-3", "dead-4", 
@@ -92,6 +116,9 @@ public class Sprite {
          
          for (String keyWord : bulletKeyWords)
             ht.put("bullet/" + keyWord, ImageIO.read(new File(Const.BOMBERMAN_RESOURCES_DIR + "images/bullet/" + keyWord + ".png")));
+         
+         // potion splash frames (optional; will only load if present)
+         loadPotionFrames();
       } catch (IOException e) {
          System.out.print("Error!\n");
          System.exit(1);

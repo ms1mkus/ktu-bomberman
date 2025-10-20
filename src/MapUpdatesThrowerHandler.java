@@ -94,20 +94,30 @@ class MapUpdatesThrowerHandler implements ThrowerHandler {
    }
 
    private void spawnRandomPowerUp(int l, int c) {
-   RandomGenerator randomGen = RandomGenerator.getInstance();
-   if (randomGen.checkProbability(0.5)) {
-      double random = randomGen.nextDouble();
-      if (random < 0.5) {
-         changeMap("powerup-bigbomb", l, c);
-      } 
-      else if (random < 0.8) {
-         changeMap("powerup-speedboost", l, c);
-      } 
-      else {
-         changeMap("powerup-ghost", l, c);
+      RandomGenerator randomGen = RandomGenerator.getInstance();
+      // 50% chance something drops
+      if (randomGen.checkProbability(0.5)) {
+         double random = randomGen.nextDouble();
+         // 50% of drops are potions, 50% are standard power-ups
+         if (random < 0.5) {
+            // Potion branch: split 50/50 between healing and poison
+            Potion.Type t = randomGen.nextDouble() < 0.5 ? Potion.Type.HEALING : Potion.Type.POISON;
+            PotionManager.spawnPotionOnGround(l, c, t);
+         } else {
+            // Existing power-ups branch
+            double p = randomGen.nextDouble();
+            if (p < 0.5) {
+               changeMap("powerup-bigbomb", l, c);
+            } 
+            else if (p < 0.8) {
+               changeMap("powerup-speedboost", l, c);
+            } 
+            else {
+               changeMap("powerup-ghost", l, c);
+            }
+         }
       }
    }
-}
 
    // checks if the fire hit any standing player (center body coordinate)
    void checkIfExplosionKilledSomeone(int linSprite, int colSprite) {
@@ -141,7 +151,7 @@ class MapUpdatesThrowerHandler implements ThrowerHandler {
                } catch (InterruptedException e) {}
             }
             int range = Server.player[id].getExplosionRange();
-            boolean usedBigBomb = Server.player[id].useBigBombPowerUp();
+            Server.player[id].useBigBombPowerUp();
             
             //explosion effects
             new Thrower("center-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l, c).start();
