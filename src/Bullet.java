@@ -36,11 +36,12 @@ public abstract class Bullet {
         
         int minSpread = maxSprayDeviation / 3;
         int totalMaxSpread = Math.max(minSpread, maxDeviation);
-        int sprayX = (int)(Math.random() * totalMaxSpread * 2 - totalMaxSpread);
-        int sprayY = (int)(Math.random() * totalMaxSpread * 2 - totalMaxSpread);
+        RandomGenerator randomGen = RandomGenerator.getInstance();
+        int sprayX = (int)(randomGen.nextDouble() * totalMaxSpread * 2 - totalMaxSpread);
+        int sprayY = (int)(randomGen.nextDouble() * totalMaxSpread * 2 - totalMaxSpread);
         
-        int baseRandomX = (int)(Math.random() * (maxSprayDeviation / 2) - (maxSprayDeviation / 4));
-        int baseRandomY = (int)(Math.random() * (maxSprayDeviation / 2) - (maxSprayDeviation / 4));
+        int baseRandomX = (int)(randomGen.nextDouble() * (maxSprayDeviation / 2) - (maxSprayDeviation / 4));
+        int baseRandomY = (int)(randomGen.nextDouble() * (maxSprayDeviation / 2) - (maxSprayDeviation / 4));
         
         int finalX = baseOffsetX + sprayX + baseRandomX;
         int finalY = baseOffsetY + sprayY + baseRandomY;

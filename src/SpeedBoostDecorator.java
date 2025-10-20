@@ -1,10 +1,11 @@
 public class SpeedBoostDecorator extends PlayerDecorator {
     private long endTime;
-    private static final long DURATION = 10000; // 10 seconds
+    private final long duration;
     
     public SpeedBoostDecorator(PlayerAbilities wrappee) {
         super(wrappee);
-        this.endTime = System.currentTimeMillis() + DURATION;
+        this.duration = RandomGenerator.getInstance().nextInt(5000, 15000); // 5 to 15 seconds
+        this.endTime = System.currentTimeMillis() + duration;
     }
     
     @Override

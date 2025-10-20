@@ -94,8 +94,9 @@ class MapUpdatesThrowerHandler implements ThrowerHandler {
    }
 
    private void spawnRandomPowerUp(int l, int c) {
-   if (Math.random() < 0.5) {
-      double random = Math.random();
+   RandomGenerator randomGen = RandomGenerator.getInstance();
+   if (randomGen.checkProbability(0.5)) {
+      double random = randomGen.nextDouble();
       if (random < 0.5) {
          changeMap("powerup-bigbomb", l, c);
       } 
