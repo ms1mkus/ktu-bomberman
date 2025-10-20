@@ -80,6 +80,14 @@ class ClientManager extends Thread {
             int startY = Server.player[id].y + Const.HEIGHT_SPRITE_PLAYER / 2;
             bt.setBulletFired(startX, startY, Integer.parseInt(str[1]), Integer.parseInt(str[2]));
          }
+         else if (str[0].equals("throw_potion") && Server.player[id].alive) {
+            if (PotionManager.playerHasPotion(id)) {
+               int tx = Integer.parseInt(str[1]);
+               int ty = Integer.parseInt(str[2]);
+               Potion p = PotionManager.usePlayerPotion(id);
+               PotionManager.applyPotionEffect(id, p, tx, ty);
+            }
+         }
       }
       clientDesconnected();
    }

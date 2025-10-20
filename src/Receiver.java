@@ -35,6 +35,15 @@ public class Receiver extends Thread {
             Game.handleBlockHealth(blockKey, health);
             Game.you.panel.repaint();
          }
+         else if (str.equals("potionEffect")) {
+            String type = Client.in.next();
+            int x = Client.in.nextInt();
+            int y = Client.in.nextInt();
+            int radius = Client.in.nextInt();
+            int duration = Client.in.nextInt();
+            Game.handlePotionEffect(type, x, y, radius, duration);
+            Game.you.panel.repaint();
+         }
          else if (str.equals("newCoordinate")) {
             p.x = Client.in.nextInt();
             p.y = Client.in.nextInt();
@@ -66,6 +75,10 @@ public class Receiver extends Thread {
             if (powerUpType.equals("bigbomb")) {
                p.abilities = new BasicPlayer();
             }
+         }
+         else if (str.equals("potionPicked")) {
+            // no local state tracked beyond visuals for now
+            Client.in.next(); // type
          }
       }
       Client.in.close();
