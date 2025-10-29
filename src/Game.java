@@ -15,6 +15,7 @@ public class Game extends JPanel {
    private boolean mousePressed = false;
    private int mouseX, mouseY;
    private Thread shootingThread = null;
+   private static java.util.LinkedList<String> chatLog = new java.util.LinkedList<>();
    
    private static class BulletData {
       int x, y;
@@ -106,9 +107,26 @@ public class Game extends JPanel {
       enemy2.draw(g);
       enemy3.draw(g);
       you.draw(g);
+      drawChat(g);
       
       // System.out.format("%s: %s [%04d, %04d]\n", Game.you.color, Game.you.status, Game.you.x, Game.you.y);;
       Toolkit.getDefaultToolkit().sync();
+   }
+
+   private void drawChat(Graphics g) {
+      int lines = Math.min(chatLog.size(), 8);
+      if (lines == 0) return;
+      int x = 10;
+      int y = getHeight() - 10 - lines * 16;
+      java.awt.Graphics2D g2 = (java.awt.Graphics2D) g;
+      g2.setColor(new java.awt.Color(0,0,0,120));
+      g2.fillRoundRect(x - 6, y - 6, 520, lines * 16 + 12, 8, 8);
+      g2.setColor(java.awt.Color.WHITE);
+      int i = 0;
+      for (String msg : chatLog.subList(chatLog.size() - lines, chatLog.size())) {
+         g2.drawString(msg, x, y + i * 16);
+         i++;
+      }
    }
 
    void drawPotionEffects(Graphics g) {
@@ -239,6 +257,15 @@ public class Game extends JPanel {
       PotionEffectViz v = new PotionEffectViz(x, y, radius, duration, color);
       v.type = type;
       effectVizes.add(v);
+   }
+
+   static void handleChat(int senderId, String message) {
+      String who = (senderId >= 0 && senderId < Const.QTY_PLAYERS)
+         ? ("[" + Sprite.personColors[senderId] + "]")
+         : "[sys]";
+      String line = who + " " + message;
+      chatLog.add(line);
+      while (chatLog.size() > 50) chatLog.removeFirst();
    }
    
    static void handleBlockHealth(String blockKey, int health) {

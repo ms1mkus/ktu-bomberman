@@ -18,7 +18,8 @@ public class Receiver extends Thread {
    public void run() {
       String str;
       while (Client.in.hasNextLine()) {
-         this.p = fromWhichPlayerIs(Client.in.nextInt()); //client id
+         int rawId = Client.in.nextInt(); // client id (can be -1 for system)
+         this.p = fromWhichPlayerIs(rawId);
          str = Client.in.next();
 
          if (str.equals("mapUpdate")) {
@@ -76,11 +77,38 @@ public class Receiver extends Thread {
                p.abilities = new BasicPlayer();
             }
          }
+      else if (str.equals("chat")) {
+         String msg = Client.in.nextLine();
+         if (msg == null) msg = "";
+         msg = msg.trim();
+         int senderId = Client.id;
+         if (rawId < 0) senderId = -1;
+         else if (p == Game.enemy1) senderId = (Client.id+1)%Const.QTY_PLAYERS;
+         else if (p == Game.enemy2) senderId = (Client.id+2)%Const.QTY_PLAYERS;
+         else if (p == Game.enemy3) senderId = (Client.id+3)%Const.QTY_PLAYERS;
+         else if (p == Game.you) senderId = Client.id;
+         Game.handleChat(senderId, msg);
+         Game.you.panel.repaint();
+      }
+         else if (str.equals("disconnect")) {
+            // Optional reason on the remainder of the line
+            String reason = "";
+            try { reason = Client.in.nextLine().trim(); } catch (Exception ex) {}
+            // Show a brief dialog and exit
+            try {
+               javax.swing.JOptionPane.showMessageDialog(null,
+                  (reason != null && !reason.isEmpty() ? reason : "Disconnected by server"),
+                  "Disconnected", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            } catch (Exception ex) {}
+            System.exit(0);
+         }
          else if (str.equals("potionPicked")) {
             // no local state tracked beyond visuals for now
             Client.in.next(); // type
          }
       }
-      Client.in.close();
+         // Server connection closed. Exit the client app.
+         try { Client.in.close(); } catch (Exception ex) {}
+         System.exit(0);
    }
 }
