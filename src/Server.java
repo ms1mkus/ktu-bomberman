@@ -155,6 +155,9 @@ class Server {
       switch (config.getMapType())
       {
           case HARD -> strategy = new MapGenStrategyHard();
+          case BARREN -> strategy = new MapGenStrategyBarren();
+          case  IMPOSSIBLE -> strategy = new MapGenStrategyImpossible();
+
 
           // EASY
          default -> strategy = new MapGenStrategyEasy();
