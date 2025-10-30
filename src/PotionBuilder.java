@@ -17,6 +17,7 @@ class HealingPotionBuilder implements PotionBuilder {
     private Color color;
     private String name;
 
+    // pats direktorius iskviecia reset'us.
     public HealingPotionBuilder() { reset(); }
 
     @Override
@@ -81,8 +82,20 @@ class PoisonPotionBuilder implements PotionBuilder {
 }
 
 class PotionDirector {
-    public Potion construct(PotionBuilder builder) {
+
+    // Director receives only the desired type and configures the appropriate builder.
+    public Potion construct(Potion.Type type) {
+        PotionBuilder builder;
+        switch (type) {
+            case HEALING -> builder = new HealingPotionBuilder();
+            case POISON  -> builder = new PoisonPotionBuilder();
+            default -> throw new IllegalArgumentException("Unsupported potion type: " + type);
+        }
+
+        // Reset to default recipe for that potion type, then build.
         builder.reset();
+
+        // If later we want variants, we can tweak via setters here based on context.
         return builder.build();
     }
 }

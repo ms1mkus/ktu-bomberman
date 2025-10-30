@@ -38,11 +38,7 @@ class PotionManager {
     static Potion usePlayerPotion(int playerId) {
         Potion.Type type = playerInventory.remove(playerId);
         if (type == null) return null;
-        PotionBuilder builder = switch (type) {
-            case HEALING -> new HealingPotionBuilder();
-            case POISON -> new PoisonPotionBuilder();
-        };
-        return director.construct(builder);
+        return director.construct(type);
     }
 
     static void applyPotionEffect(int throwerId, Potion potion, int targetX, int targetY) {
