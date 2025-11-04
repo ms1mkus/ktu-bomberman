@@ -1,9 +1,9 @@
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.Color;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.swing.JPanel;
 
@@ -19,6 +19,19 @@ public class Game extends JPanel {
 
    private SkinManager skinManager;
    
+   private static DrawSpriteStrategyBase drawSpriteStrategy = new DrawSpriteStrategyDefault();
+
+   public static void setDrawSpriteStrategy(DrawSpriteStrategyBase strategy)
+   {
+       drawSpriteStrategy = strategy;
+   }
+
+   public static DrawSpriteStrategyBase getDrawSpriteStrategy()
+   {
+       return drawSpriteStrategy;
+   }
+
+
    private static class BulletData {
       int x, y;
       String spriteType;
@@ -101,6 +114,9 @@ public class Game extends JPanel {
    //draws components, called by paint() and repaint()
    public void paintComponent(Graphics g) {
       super.paintComponent(g);
+
+      drawSpriteStrategy.setGraphics(g);
+
       drawMap(g);
       drawBlockHealth(g);
       drawBullets(g);
@@ -122,8 +138,33 @@ public class Game extends JPanel {
       else {
          g.drawString("CLASSIC MODE (F1: Map, F2: Players)", 10, 20);
       }
+      drawPlayers(g);
+      
       // System.out.format("%s: %s [%04d, %04d]\n", Game.you.color, Game.you.status, Game.you.x, Game.you.y);;
       Toolkit.getDefaultToolkit().sync();
+   }
+
+   void drawPlayers(Graphics g)
+   {
+       List<Player> players = Arrays.asList(enemy1, enemy2, enemy3, you);
+       for (Player p : players)
+       {
+           if (p.alive) {
+               // Apply transparency if player is in ghost mode (for other players)
+               if (p != you && p.isGhost())
+               {
+                   java.awt.Graphics2D g2d = (java.awt.Graphics2D) g;
+                   g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.1f));
+                   drawSpriteStrategy.drawImage(Sprite.ht.get(p.color + "/" + p.status), p.x, p.y, Const.WIDTH_SPRITE_PLAYER, Const.HEIGHT_SPRITE_PLAYER);
+                   g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f));
+               }
+               else
+               {
+                    // Draw normally
+                    drawSpriteStrategy.drawImage(Sprite.ht.get(p.color + "/" + p.status), p.x, p.y, Const.WIDTH_SPRITE_PLAYER, Const.HEIGHT_SPRITE_PLAYER);
+               }
+           }
+       }
    }
 
    void drawPotionEffects(Graphics g) {
@@ -147,13 +188,13 @@ public class Game extends JPanel {
             java.awt.Image img = Sprite.ht.get(base + frame);
             if (img != null) {
                int size = v.radius * 2;
-               g.drawImage(img, v.x - v.radius, v.y - v.radius, size, size, null);
+               drawSpriteStrategy.drawImage(img, v.x - v.radius, v.y - v.radius, size, size);
                continue;
             }
          }
-         java.awt.Graphics2D g2d = (java.awt.Graphics2D) g;
-         g2d.setColor(new java.awt.Color(v.color.getRed(), v.color.getGreen(), v.color.getBlue(), 90));
-         g2d.fillOval(v.x - v.radius, v.y - v.radius, v.radius * 2, v.radius * 2);
+
+         drawSpriteStrategy.drawOval(new java.awt.Color(v.color.getRed(), v.color.getGreen(), v.color.getBlue(), 90),
+                 v.x - v.radius, v.y - v.radius, v.radius * 2, v.radius * 2);
       }
    }
    
@@ -180,6 +221,14 @@ public class Game extends JPanel {
       skinManager.togglePlayerProtanopia();
       repaint();
    }
+   // void drawMap(Graphics g)
+   // {
+   //    for (int i = 0; i < Const.LIN; i++)
+   //       for (int j = 0; j < Const.COL; j++)
+   //           drawSpriteStrategy.drawImage(Sprite.ht.get(Client.map[i][j].img),
+   //                   Client.map[i][j].x, Client.map[i][j].y,
+   //                   Const.SIZE_SPRITE_MAP, Const.SIZE_SPRITE_MAP);
+   // }
    
    void drawBullets(Graphics g) {
       for (BulletData bullet : activeBullets.values()) {
@@ -190,11 +239,12 @@ public class Game extends JPanel {
                int spriteSize = 32;
                int drawX = bullet.x - spriteSize / 2;
                int drawY = bullet.y - spriteSize / 2;
-               
-               g.drawImage(bulletSprite, drawX, drawY, spriteSize, spriteSize, null);
+
+                drawSpriteStrategy.drawImage(bulletSprite, drawX, drawY, spriteSize, spriteSize);
+
             } else {
-               g.setColor(java.awt.Color.WHITE);
-               g.fillOval(bullet.x - 5, bullet.y - 5, 10, 10);
+
+                drawSpriteStrategy.drawOval(java.awt.Color.WHITE, bullet.x - 5, bullet.y - 5, 10, 10);
             }
          }
       }
@@ -214,21 +264,22 @@ public class Game extends JPanel {
                   
                   int barWidth = (int)(Const.SIZE_SPRITE_MAP * healthPercent);
                   int barHeight = 6;
-                  
-                  g.setColor(java.awt.Color.RED);
-                  g.fillRect(x, y - 10, Const.SIZE_SPRITE_MAP, barHeight);
-                  
+
+                  drawSpriteStrategy.drawRect(java.awt.Color.RED, x, y - 10, Const.SIZE_SPRITE_MAP, barHeight);
+
+                  java.awt.Color col;
+
                   if (healthPercent > 0.6) {
-                     g.setColor(java.awt.Color.GREEN);
+                      col=(java.awt.Color.GREEN);
                   } else if (healthPercent > 0.3) {
-                     g.setColor(java.awt.Color.ORANGE);
+                      col=(java.awt.Color.ORANGE);
                   } else {
-                     g.setColor(java.awt.Color.RED);
+                      col=(java.awt.Color.RED);
                   }
-                  g.fillRect(x, y - 10, barWidth, barHeight);
-                  
-                  g.setColor(java.awt.Color.BLACK);
-                  g.drawRect(x, y - 10, Const.SIZE_SPRITE_MAP, barHeight);
+
+                  drawSpriteStrategy.drawRect(col, x, y - 10, barWidth, barHeight);
+
+                  drawSpriteStrategy.drawRect(java.awt.Color.BLACK, x, y - 10, Const.SIZE_SPRITE_MAP, barHeight);
                }
             }
          }

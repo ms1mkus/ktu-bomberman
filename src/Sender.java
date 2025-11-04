@@ -1,4 +1,5 @@
 import java.awt.event.*;
+import java.util.List;
 
 //listens while the window (JFrame) is focused
 public class Sender extends KeyAdapter {
@@ -17,9 +18,14 @@ public class Sender extends KeyAdapter {
       {
          Client.out.println("removing_wall");
       }
+      else if (e.getKeyCode() == KeyEvent.VK_P) // Lukas: cycle drawing strategy (not sending it to server so shouldn't be here..)
+      {
+          cycleDrawingStrategy();
+      }
       else if (isNewKeyCode(e.getKeyCode())) // moving
          Client.out.println("keyCodePressed " + e.getKeyCode());
       }
+
       
    public void keyReleased(KeyEvent e) {
       Client.out.println("keyCodeReleased " + e.getKeyCode());
@@ -30,5 +36,43 @@ public class Sender extends KeyAdapter {
       boolean ok = (keyCode != lastKeyCodePressed) ? true : false;
       lastKeyCodePressed = keyCode;
       return ok;
+   }
+
+   int currentDrawStrategy = 0;
+   private void cycleDrawingStrategy()
+   {
+
+       currentDrawStrategy++;
+       if (currentDrawStrategy > 3)
+           currentDrawStrategy = 0;
+
+       DrawSpriteStrategyBase strategy;
+       switch (currentDrawStrategy)
+       {
+
+           case 1:
+           {
+               strategy = new DrawSpriteStrategyGrayscale();
+               break;
+           }
+           case 2:
+           {
+               strategy = new DrawSpriteStrategySaturated();
+               break;
+           }
+           case 3:
+           {
+               strategy = new DrawSpriteStrategyVintage();
+               break;
+           }
+           default:
+           {
+               strategy = new DrawSpriteStrategyDefault();
+               break;
+           }
+
+       }
+
+       Game.setDrawSpriteStrategy(strategy);
    }
 }
