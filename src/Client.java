@@ -79,5 +79,18 @@ class Window extends JFrame {
       setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
       addKeyListener(new Sender());
+      addKeyListener(new java.awt.event.KeyAdapter() {
+         @Override
+         public void keyPressed(java.awt.event.KeyEvent e) {
+            Game game = (Game) getContentPane().getComponent(0);
+                
+            if (e.getKeyCode() == java.awt.event.KeyEvent.VK_F1) {
+               game.toggleMapProtanopia();
+            } 
+            else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_F2) {
+               game.togglePlayerProtanopia();
+            }
+         }
+      });
    }
 }

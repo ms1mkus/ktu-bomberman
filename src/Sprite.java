@@ -33,8 +33,18 @@ public class Sprite {
       "mid-hori-explosion-1", "mid-hori-explosion-2", "mid-hori-explosion-3", "mid-hori-explosion-4", "mid-hori-explosion-5", 
    "mid-vert-explosion-1", "mid-vert-explosion-2", "mid-vert-explosion-3", "mid-vert-explosion-4", "mid-vert-explosion-5", 
    "wall-center", "wall-down-left", "wall-down-right", "wall-up-left", "wall-up-right", "powerup-bigbomb", "powerup-speedboost", "powerup-ghost",
+   "floor-1-protan", "block-protan",
    // potion ground tiles (user-provided art)
-   "potion-healing", "potion-poison"
+   "potion-healing", "potion-poison", 
+   // Protanonia
+   "center-explosion-protan-1", "center-explosion-protan-2", "center-explosion-protan-3", "center-explosion-protan-4", "center-explosion-protan-5",
+   "down-explosion-protan-1", "down-explosion-protan-2", "down-explosion-protan-3", "down-explosion-protan-4", "down-explosion-protan-5",
+   "right-explosion-protan-1", "right-explosion-protan-2", "right-explosion-protan-3", "right-explosion-protan-4", "right-explosion-protan-5",
+   "up-explosion-protan-1", "up-explosion-protan-2", "up-explosion-protan-3", "up-explosion-protan-4", "up-explosion-protan-5",
+   "left-explosion-protan-1", "left-explosion-protan-2", "left-explosion-protan-3", "left-explosion-protan-4", "left-explosion-protan-5",
+   "bomb-planted-protan-1", "bomb-planted-protan-2", "bomb-planted-protan-3", "mid-hori-explosion-protan-1", "mid-hori-explosion-protan-2",
+   "mid-hori-explosion-protan-3", "mid-hori-explosion-protan-4", "mid-hori-explosion-protan-5", "mid-vert-explosion-protan-1", "mid-vert-explosion-protan-2",
+   "mid-vert-explosion-protan-3", "mid-vert-explosion-protan-4", "mid-vert-explosion-protan-5"
    };
    
    final static String bulletKeyWords[] = {

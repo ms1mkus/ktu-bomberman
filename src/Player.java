@@ -10,22 +10,26 @@ public class Player {
    boolean alive;
 
    PlayerAbilities abilities;
+   private PlayerElement playerElement;
 
    StatusChanger sc;
 
-   Player(int id, JPanel panel) throws InterruptedException {
+   Player(int id, JPanel panel, SkinManager skinManager) throws InterruptedException {
       this.x = Client.spawn[id].x;
       this.y = Client.spawn[id].y;
       this.color = Sprite.personColors[id];
       this.panel = panel;
       this.alive = Client.alive[id];
       this.abilities = new BasicPlayer();
+      this.playerElement = skinManager.createPlayer(id, "wait");
+      this.color = playerElement.getPlayerColor();
 
       (sc = new StatusChanger(this, "wait")).start();
    }
 
    public void draw(Graphics g) {
       if (alive) {
+         String spriteKey = playerElement.getSpriteKey();
          // Apply transparency if player is in ghost mode (for other players)
          if (this != Game.you && isGhost()) {
             java.awt.Graphics2D g2d = (java.awt.Graphics2D) g;
@@ -35,9 +39,13 @@ public class Player {
          } 
          else {
             // Draw normally
-            g.drawImage(Sprite.ht.get(color + "/" + status), x, y, Const.WIDTH_SPRITE_PLAYER, Const.HEIGHT_SPRITE_PLAYER, null);
+            g.drawImage(Sprite.ht.get(spriteKey), x, y, Const.WIDTH_SPRITE_PLAYER, Const.HEIGHT_SPRITE_PLAYER, null);
          }
       }
+   }
+   public void updateStatus(String newStatus) {
+      this.status = newStatus;
+      playerElement.setStatus(newStatus);
    }
 
    public void addGhost() {
@@ -80,6 +88,7 @@ class StatusChanger extends Thread {
    public void run() {
       while (true) {
          p.status = status + "-" + index;
+         p.updateStatus(p.status);
          if (playerInMotion) {
             index = (++index) % Sprite.maxLoopStatus.get(status);
             p.panel.repaint();

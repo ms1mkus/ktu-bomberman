@@ -3,6 +3,7 @@ import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.Color;
 
 import javax.swing.JPanel;
 
@@ -15,6 +16,8 @@ public class Game extends JPanel {
    private boolean mousePressed = false;
    private int mouseX, mouseY;
    private Thread shootingThread = null;
+
+   private SkinManager skinManager;
    
    private static class BulletData {
       int x, y;
@@ -46,7 +49,7 @@ public class Game extends JPanel {
 
    Game(int width, int height) {
       setPreferredSize(new Dimension(width, height));
-      
+      this.skinManager = new SkinManager();
       addMouseListener(new MouseAdapter() {
          @Override
          public void mousePressed(MouseEvent e) {
@@ -82,10 +85,10 @@ public class Game extends JPanel {
       
       try {
          System.out.print("Initializing players...");
-         you = new Player(Client.id, this);
-         enemy1 = new Player((Client.id+1)%Const.QTY_PLAYERS, this);
-         enemy2 = new Player((Client.id+2)%Const.QTY_PLAYERS, this);
-         enemy3 = new Player((Client.id+3)%Const.QTY_PLAYERS, this);
+         you = new Player(Client.id, this, skinManager);
+         enemy1 = new Player((Client.id+1)%Const.QTY_PLAYERS, this, skinManager);
+         enemy2 = new Player((Client.id+2)%Const.QTY_PLAYERS, this, skinManager);
+         enemy3 = new Player((Client.id+3)%Const.QTY_PLAYERS, this, skinManager);
       } catch (InterruptedException e) {
          System.out.println("Error: " + e + "\n");
          System.exit(1);
@@ -106,7 +109,19 @@ public class Game extends JPanel {
       enemy2.draw(g);
       enemy3.draw(g);
       you.draw(g);
-      
+      g.setColor(Color.WHITE);
+      if (skinManager.isFullProtanopia()) {
+         g.drawString("FULL PROTANOPIA (F1+F2)", 10, 20);
+      } 
+      else if (skinManager.isMapProtanopia()) {
+         g.drawString("MAP PROTANOPIA (F1)", 10, 20);
+      } 
+      else if (skinManager.isPlayerProtanopia()) {
+         g.drawString("PLAYER PROTANOPIA (F2)", 10, 20);
+      } 
+      else {
+         g.drawString("CLASSIC MODE (F1: Map, F2: Players)", 10, 20);
+      }
       // System.out.format("%s: %s [%04d, %04d]\n", Game.you.color, Game.you.status, Game.you.x, Game.you.y);;
       Toolkit.getDefaultToolkit().sync();
    }
@@ -143,13 +158,27 @@ public class Game extends JPanel {
    }
    
    void drawMap(Graphics g) {
-      for (int i = 0; i < Const.LIN; i++)
-         for (int j = 0; j < Const.COL; j++)
+      for (int i = 0; i < Const.LIN; i++){
+         for (int j = 0; j < Const.COL; j++) {
+            MapElement mapElement = skinManager.createMapTile(Client.map[i][j].img);
+            String spriteKey = mapElement.getSpriteKey();
+                
             g.drawImage(
-               Sprite.ht.get(Client.map[i][j].img), 
+               Sprite.ht.get(spriteKey), 
                Client.map[i][j].x, Client.map[i][j].y, 
                Const.SIZE_SPRITE_MAP, Const.SIZE_SPRITE_MAP, null
             );
+         }
+      }
+   }
+   public void toggleMapProtanopia() {
+      skinManager.toggleMapProtanopia();
+      repaint();
+   }
+    
+   public void togglePlayerProtanopia() {
+      skinManager.togglePlayerProtanopia();
+      repaint();
    }
    
    void drawBullets(Graphics g) {
