@@ -138,7 +138,6 @@ public class Game extends JPanel {
       else {
          g.drawString("CLASSIC MODE (F1: Map, F2: Players)", 10, 20);
       }
-      drawPlayers(g);
       
       // System.out.format("%s: %s [%04d, %04d]\n", Game.you.color, Game.you.status, Game.you.x, Game.you.y);;
       Toolkit.getDefaultToolkit().sync();
@@ -204,10 +203,10 @@ public class Game extends JPanel {
             MapElement mapElement = skinManager.createMapTile(Client.map[i][j].img);
             String spriteKey = mapElement.getSpriteKey();
                 
-            g.drawImage(
+            drawSpriteStrategy.drawImage(
                Sprite.ht.get(spriteKey), 
                Client.map[i][j].x, Client.map[i][j].y, 
-               Const.SIZE_SPRITE_MAP, Const.SIZE_SPRITE_MAP, null
+               Const.SIZE_SPRITE_MAP, Const.SIZE_SPRITE_MAP
             );
          }
       }
@@ -221,14 +220,6 @@ public class Game extends JPanel {
       skinManager.togglePlayerProtanopia();
       repaint();
    }
-   // void drawMap(Graphics g)
-   // {
-   //    for (int i = 0; i < Const.LIN; i++)
-   //       for (int j = 0; j < Const.COL; j++)
-   //           drawSpriteStrategy.drawImage(Sprite.ht.get(Client.map[i][j].img),
-   //                   Client.map[i][j].x, Client.map[i][j].y,
-   //                   Const.SIZE_SPRITE_MAP, Const.SIZE_SPRITE_MAP);
-   // }
    
    void drawBullets(Graphics g) {
       for (BulletData bullet : activeBullets.values()) {
