@@ -9,4 +9,12 @@ public class GhostDecorator extends PlayerDecorator {
     public boolean isGhost() {
         return !used;
     }
+    
+    public void useGhost() {
+        used = true;
+    }
+    
+    public boolean isUsed() {
+        return used;
+    }
 }

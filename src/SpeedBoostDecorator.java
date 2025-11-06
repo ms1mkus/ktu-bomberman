@@ -4,15 +4,23 @@ public class SpeedBoostDecorator extends PlayerDecorator {
     
     public SpeedBoostDecorator(PlayerAbilities wrappee) {
         super(wrappee);
-        this.duration = RandomGenerator.getInstance().nextInt(5000, 15000); // 5 to 15 seconds
+        this.duration = RandomGenerator.getInstance().nextInt(5000, 15000);
         this.endTime = System.currentTimeMillis() + duration;
     }
     
     @Override
     public int getMovementSpeed() {
         if (System.currentTimeMillis() > endTime) {
-            return super.getMovementSpeed(); // Expired
+            return super.getMovementSpeed();
         }
-        return 2; // Double speed
+        return 2;
+    }
+    
+    public long getEndTime() {
+        return endTime;
+    }
+    
+    public long getDuration() {
+        return duration;
     }
 }

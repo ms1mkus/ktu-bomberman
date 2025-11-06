@@ -16,6 +16,13 @@ public class Game extends JPanel {
    private boolean mousePressed = false;
    private int mouseX, mouseY;
    private Thread shootingThread = null;
+   private static AbstractWeaponFactory weaponFactory = null;
+   private static WeaponComponent weaponBullet = null;
+   private static WeaponComponent weaponMagazine = null;
+   private static WeaponComponent weaponBarrel = null;
+   private static long reloadStartTime = 0;
+   private static boolean isReloading = false;
+   private static boolean showWeaponHUD = true;
 
    private SkinManager skinManager;
    
@@ -63,17 +70,33 @@ public class Game extends JPanel {
    Game(int width, int height) {
       setPreferredSize(new Dimension(width, height));
       this.skinManager = new SkinManager();
+      
       addMouseListener(new MouseAdapter() {
          @Override
          public void mousePressed(MouseEvent e) {
+            mouseX = e.getX();
+            mouseY = e.getY();
+            
+            if (WeaponHUD.isButtonClicked(mouseX, mouseY)) {
+               showWeaponHUD = !showWeaponHUD;
+               updateWeaponHUD();
+               return;
+            }
+            
+            if (WeaponHUD.isHatButtonClicked(mouseX, mouseY)) {
+               WeaponHUD.triggerHatAction();
+               repaint();
+               return;
+            }
+            
             if (you.alive && Client.out != null) {
                mousePressed = true;
-               mouseX = e.getX();
-               mouseY = e.getY();
                if (e.getButton() == MouseEvent.BUTTON2) { // middle click throws potion once
                   Client.out.println("throw_potion " + mouseX + " " + mouseY);
                } else {
-                  Client.out.println("shoot " + mouseX + " " + mouseY);
+                  if (onShoot()) {
+                     Client.out.println("shoot " + mouseX + " " + mouseY);
+                  }
                   startContinuousShooting();
                }
             }
@@ -97,11 +120,27 @@ public class Game extends JPanel {
       });
       
       try {
-         System.out.print("Initializing players...");
+         System.out.print("Initializing players using Prototype Pattern...");
+         
          you = new Player(Client.id, this, skinManager);
-         enemy1 = new Player((Client.id+1)%Const.QTY_PLAYERS, this, skinManager);
-         enemy2 = new Player((Client.id+2)%Const.QTY_PLAYERS, this, skinManager);
-         enemy3 = new Player((Client.id+3)%Const.QTY_PLAYERS, this, skinManager);
+         System.out.println("\n  → Prototype: ");
+         System.out.print("     ");
+         you.printPlayerDetails();
+         
+         enemy1 = you.makeShallowCopy(); 
+         enemy1.initializeForId((Client.id+1)%Const.QTY_PLAYERS, this, skinManager);
+         System.out.print("\n  → Enemy1 (Shallow):    ");
+         enemy1.printPlayerDetails();
+         
+         enemy2 = you.makeDeepCopy(); 
+         enemy2.initializeForId((Client.id+2)%Const.QTY_PLAYERS, this, skinManager);
+         System.out.print("\n  → Enemy2 (Deep):       ");
+         enemy2.printPlayerDetails();
+         
+         enemy3 = you.makeShallowCopy(); 
+         enemy3.initializeForId((Client.id+3)%Const.QTY_PLAYERS, this, skinManager);
+         System.out.print("\n  → Enemy3 (Shallow):    ");
+         enemy3.printPlayerDetails();
       } catch (InterruptedException e) {
          System.out.println("Error: " + e + "\n");
          System.exit(1);
@@ -109,9 +148,85 @@ public class Game extends JPanel {
       System.out.print(" ok\n");
 
       System.out.println("My player: " + Sprite.personColors[Client.id]);
+      
+      initializeWeaponFactory();
+      updateWeaponHUD();
+   }
+   
+   private void initializeWeaponFactory() {
+      if (Client.id % 3 == 0) {
+         weaponFactory = new TornadoWeaponFactory();
+      } else if (Client.id % 3 == 1) {
+         weaponFactory = new FastWeaponFactory();
+      } else {
+         weaponFactory = new HeavyWeaponFactory();
+      }
+      
+      weaponBullet = weaponFactory.getBullet();
+      weaponMagazine = weaponFactory.getMagazine();
+      weaponBarrel = weaponFactory.getBarrel();
+   }
+   
+   private static void updateWeaponHUD() {
+      if (showWeaponHUD) {
+         if (weaponFactory == null || weaponBullet == null || weaponMagazine == null || weaponBarrel == null) {
+            return;
+         }
+         
+         long currentTime = System.currentTimeMillis();
+         long reloadTimeRemaining = 0;
+         
+         if (isReloading) {
+            long elapsed = currentTime - reloadStartTime;
+            reloadTimeRemaining = Math.max(0, weaponMagazine.getReloadTime() - elapsed);
+            if (reloadTimeRemaining == 0) {
+               isReloading = false;
+               weaponMagazine.reload();
+            }
+         }
+         
+         WeaponStatsProvider provider = new WeaponStatsProvider(
+            weaponBullet, weaponMagazine, weaponBarrel, isReloading, reloadTimeRemaining
+         );
+         WeaponHUD.setDisplayProvider(provider);
+      } else {
+         if (you != null && you.abilities != null) {
+            PlayerAbilitiesInfoProvider infoProvider = 
+               new PlayerAbilitiesInfoProvider(you.abilities, you.color);
+            PlayerAbilitiesInfoProviderHUDAdapter adapter = 
+               new PlayerAbilitiesInfoProviderHUDAdapter(infoProvider);
+            WeaponHUD.setDisplayProvider(adapter);
+         }
+      }
+   }
+   
+   static boolean onShoot() {
+      if (weaponMagazine == null) return false;
+      
+      if (isReloading) {
+         long currentTime = System.currentTimeMillis();
+         long elapsed = currentTime - reloadStartTime;
+         if (elapsed >= weaponMagazine.getReloadTime()) {
+            isReloading = false;
+            weaponMagazine.reload();
+         } else {
+            updateWeaponHUD();
+            return false;
+         }
+      }
+      
+      if (weaponMagazine.getCurrentCapacity() <= 0) {
+         isReloading = true;
+         reloadStartTime = System.currentTimeMillis();
+         updateWeaponHUD();
+         return false;
+      }
+      
+      weaponMagazine.setCurrentCapacity(weaponMagazine.getCurrentCapacity() - 1);
+      updateWeaponHUD();
+      return true;
    }
 
-   //draws components, called by paint() and repaint()
    public void paintComponent(Graphics g) {
       super.paintComponent(g);
 
@@ -138,6 +253,10 @@ public class Game extends JPanel {
       else {
          g.drawString("CLASSIC MODE (F1: Map, F2: Players)", 10, 20);
       }
+      
+      updateWeaponHUD();
+      WeaponHUD.draw(g, getWidth(), getHeight());
+      WeaponHUD.drawHatButton(g, getWidth(), getHeight());
       
       // System.out.format("%s: %s [%04d, %04d]\n", Game.you.color, Game.you.status, Game.you.x, Game.you.y);;
       Toolkit.getDefaultToolkit().sync();
@@ -328,9 +447,12 @@ public class Game extends JPanel {
             Thread.sleep(200);
             
             while (mousePressed && you.alive && Client.out != null) {
-               Client.out.println("shoot " + mouseX + " " + mouseY);
-               
-               Thread.sleep(200);
+               if (onShoot()) {
+                  Client.out.println("shoot " + mouseX + " " + mouseY);
+                  Thread.sleep(200);
+               } else {
+                  Thread.sleep(100);
+               }
             }
          } catch (InterruptedException e) {
          }

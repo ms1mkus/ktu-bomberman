@@ -1,64 +1,47 @@
-public abstract class Bullet {
+public abstract class Bullet extends WeaponComponent {
     protected int speed;
     protected int damage;
     protected int baseAccuracy;
-    protected int recoilPattern[];
-    protected int maxSprayDeviation;
-    protected int accuracyDecayRate;
-    protected int recoveryTime;
 
-    public Bullet(int speed, int damage, int baseAccuracy, int[] recoilPattern, 
-                  int maxSprayDeviation, int accuracyDecayRate, int recoveryTime) {
+    public Bullet(String name, int speed, int damage, int baseAccuracy) {
+        super(name);
         this.speed = speed;
         this.damage = damage;
         this.baseAccuracy = baseAccuracy;
-        this.recoilPattern = recoilPattern.clone();
-        this.maxSprayDeviation = maxSprayDeviation;
-        this.accuracyDecayRate = accuracyDecayRate;
-        this.recoveryTime = recoveryTime;
     }
     
     public int getSpeed() { return speed; }
     public int getDamage() { return damage; }
     public int getBaseAccuracy() { return baseAccuracy; }
-    public int getMaxSprayDeviation() { return maxSprayDeviation; }
-    public int getAccuracyDecayRate() { return accuracyDecayRate; }
-    public int getRecoveryTime() { return recoveryTime; }
     
-    public int[] calculateSprayOffset(int shotNumber, long timeSinceLastShot) {
-        int patternIndex = shotNumber % recoilPattern.length;
-        int baseOffsetX = recoilPattern[patternIndex];
-        int baseOffsetY = recoilPattern[(patternIndex + 1) % recoilPattern.length];
-        
-        int currentAccuracy = calculateCurrentAccuracy(timeSinceLastShot);
-        double accuracyMultiplier = currentAccuracy / 100.0;
-        int maxDeviation = (int)(maxSprayDeviation * (1.5 - accuracyMultiplier));
-        
-        int minSpread = maxSprayDeviation / 3;
-        int totalMaxSpread = Math.max(minSpread, maxDeviation);
-        RandomGenerator randomGen = RandomGenerator.getInstance();
-        int sprayX = (int)(randomGen.nextDouble() * totalMaxSpread * 2 - totalMaxSpread);
-        int sprayY = (int)(randomGen.nextDouble() * totalMaxSpread * 2 - totalMaxSpread);
-        
-        int baseRandomX = (int)(randomGen.nextDouble() * (maxSprayDeviation / 2) - (maxSprayDeviation / 4));
-        int baseRandomY = (int)(randomGen.nextDouble() * (maxSprayDeviation / 2) - (maxSprayDeviation / 4));
-        
-        int finalX = baseOffsetX + sprayX + baseRandomX;
-        int finalY = baseOffsetY + sprayY + baseRandomY;
-        
-        return new int[]{finalX, finalY};
+    @Override
+    public int getPrimaryStat() {
+        return baseAccuracy;
     }
     
-    private int calculateCurrentAccuracy(long timeSinceLastShot) {
-        if (timeSinceLastShot >= recoveryTime) {
-            return baseAccuracy;
-        }
+    @Override
+    public int getSecondaryStat() {
+        return damage;
+    }
+    
+    @Override
+    public String getPrimaryStatLabel() {
+        return "Accuracy";
+    }
+    
+    @Override
+    public String getSecondaryStatLabel() {
+        return "Damage";
+    }
+    
+    public int[] calculateSprayOffset(int shotNumber, long timeSinceLastShot) {
+        RandomGenerator randomGen = RandomGenerator.getInstance();
+        int maxSpread = (100 - baseAccuracy) / 2;
         
-        double recoveryPercent = (double)timeSinceLastShot / recoveryTime;
-        int accuracyLoss = (100 - baseAccuracy) * accuracyDecayRate / 100;
-        int currentAccuracy = baseAccuracy - accuracyLoss + (int)(accuracyLoss * recoveryPercent);
+        int sprayX = (int)(randomGen.nextDouble() * maxSpread * 2 - maxSpread);
+        int sprayY = (int)(randomGen.nextDouble() * maxSpread * 2 - maxSpread);
         
-        return Math.max(10, Math.min(baseAccuracy, currentAccuracy));
+        return new int[]{sprayX, sprayY};
     }
     
     public abstract String getSpriteType();

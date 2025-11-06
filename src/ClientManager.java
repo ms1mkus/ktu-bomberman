@@ -88,6 +88,7 @@ class ClientManager extends Thread {
                PotionManager.applyPotionEffect(id, p, tx, ty);
             }
          }
+         
       }
       clientDesconnected();
    }

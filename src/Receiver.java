@@ -77,9 +77,9 @@ public class Receiver extends Thread {
             }
          }
          else if (str.equals("potionPicked")) {
-            // no local state tracked beyond visuals for now
-            Client.in.next(); // type
+            Client.in.next();
          }
+         
       }
       Client.in.close();
    }

@@ -1,68 +1,53 @@
-class FastBulletFactory extends BulletFactory {
+class FastWeaponFactory extends AbstractWeaponFactory {
     
     @Override
-    public Bullet createBullet() {
+    public WeaponComponent getBullet() {
         return new FastBullet();
     }
     
     @Override
-    public int getFireRate() {
-        return 150;
+    public WeaponComponent getMagazine() {
+        return new FastMagazine();
     }
     
     @Override
-    public int getMaxRange() {
-        return 400;
-    }
-    
-    @Override
-    public String getFactoryType() {
-        return "Fast Bullet Factory";
+    public WeaponComponent getBarrel() {
+        return new FastBarrel();
     }
 }
 
-class HeavyBulletFactory extends BulletFactory {
+class HeavyWeaponFactory extends AbstractWeaponFactory {
     
     @Override
-    public Bullet createBullet() {
+    public WeaponComponent getBullet() {
         return new HeavyBullet();
     }
     
     @Override
-    public int getFireRate() {
-        return 300;
+    public WeaponComponent getMagazine() {
+        return new HeavyMagazine();
     }
     
     @Override
-    public int getMaxRange() {
-        return 600;
-    }
-    
-    @Override
-    public String getFactoryType() {
-        return "Heavy Bullet Factory";
+    public WeaponComponent getBarrel() {
+        return new HeavyBarrel();
     }
 }
 
-class TornadoBulletFactory extends BulletFactory {
+class TornadoWeaponFactory extends AbstractWeaponFactory {
     
     @Override
-    public Bullet createBullet() {
+    public WeaponComponent getBullet() {
         return new TornadoBullet();
     }
     
     @Override
-    public int getFireRate() {
-        return 2000;
+    public WeaponComponent getMagazine() {
+        return new TornadoMagazine();
     }
     
     @Override
-    public int getMaxRange() {
-        return 800;
-    }
-    
-    @Override
-    public String getFactoryType() {
-        return "Tornado Bullet Factory";
+    public WeaponComponent getBarrel() {
+        return new TornadoBarrel();
     }
 }

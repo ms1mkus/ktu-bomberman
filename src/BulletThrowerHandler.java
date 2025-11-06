@@ -1,38 +1,51 @@
 class BulletThrowerHandler implements ThrowerHandler {
     boolean bulletFired;
     int id, startX, startY, targetX, targetY;
-    BulletFactory bulletFactory;
+    AbstractWeaponFactory abstractWeaponFactory;
+    Magazine magazine;
+    Barrel barrel;
     long lastShotTime = 0;
     int consecutiveShotCount = 0;
+    boolean isReloading = false;
+    long reloadStartTime = 0;
 
     BulletThrowerHandler(int id) {
         this.id = id;
         this.bulletFired = false;
-        
-        // real logic
-        // double random = Math.random();
-        // if (random < 0.05) {
-        //     this.bulletFactory = new TornadoBulletFactory();
-        // } else if (random < 0.525) {
-        //     this.bulletFactory = new FastBulletFactory();
-        // } else {
-        //     this.bulletFactory = new HeavyBulletFactory();
-        // }
+        this.abstractWeaponFactory = getAbstractWeaponFactory(id);
+        this.magazine = (Magazine) abstractWeaponFactory.getMagazine();
+        this.barrel = (Barrel) abstractWeaponFactory.getBarrel();
+    }
 
-        //test logic to test all
+    AbstractWeaponFactory getAbstractWeaponFactory(int id) {
         if(id%3 == 0) {
-            this.bulletFactory = new TornadoBulletFactory();
+            return new TornadoWeaponFactory();
         } else if (id%3 == 1) {
-            this.bulletFactory = new FastBulletFactory();
+            return new FastWeaponFactory();
         } else {
-            this.bulletFactory = new HeavyBulletFactory();
+            return new HeavyWeaponFactory();
         }
     }
 
     void setBulletFired(int startX, int startY, int targetX, int targetY) {
         long currentTime = System.currentTimeMillis();
         
-        if (lastShotTime > 0 && currentTime - lastShotTime < bulletFactory.getFireRate()) {
+        if (isReloading) {
+            if (currentTime - reloadStartTime >= magazine.getReloadTime()) {
+                isReloading = false;
+                magazine.reload();
+            } else {
+                return;
+            }
+        }
+        
+        if (magazine.getCurrentCapacity() <= 0) {
+            isReloading = true;
+            reloadStartTime = currentTime;
+            return;
+        }
+        
+        if (lastShotTime > 0 && currentTime - lastShotTime < barrel.getFireRate()) {
             return;
         }
         
@@ -40,6 +53,8 @@ class BulletThrowerHandler implements ThrowerHandler {
             consecutiveShotCount = 0;
         }
         consecutiveShotCount++;
+        
+        magazine.setCurrentCapacity(magazine.getCurrentCapacity() - 1);
         
         this.startX = startX;
         this.startY = startY;
@@ -138,7 +153,7 @@ class BulletThrowerHandler implements ThrowerHandler {
             if (bulletFired) {
                 bulletFired = false;
                 
-                Bullet bullet = bulletFactory.createBullet();
+                Bullet bullet = (Bullet) abstractWeaponFactory.getBullet();
                 
                 long currentTime = System.currentTimeMillis();
                 long timeSinceLastShot = lastShotTime > 0 ? (currentTime - lastShotTime) : 1000;

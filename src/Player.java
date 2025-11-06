@@ -3,7 +3,7 @@ import java.awt.Graphics;
 import javax.swing.JPanel;
 
 //for both you and enemy
-public class Player {
+public class Player implements Cloneable {
    int x, y;
    String status, color;
    JPanel panel;
@@ -11,6 +11,7 @@ public class Player {
 
    PlayerAbilities abilities;
    private PlayerElement playerElement;
+   public PlayerHat hat;
 
    StatusChanger sc;
 
@@ -21,6 +22,7 @@ public class Player {
       this.panel = panel;
       this.alive = Client.alive[id];
       this.abilities = new BasicPlayer();
+      this.hat = new PlayerHat();
       this.playerElement = skinManager.createPlayer(id, "wait");
       this.color = playerElement.getPlayerColor();
 
@@ -40,6 +42,10 @@ public class Player {
          else {
             // Draw normally
             g.drawImage(Sprite.ht.get(spriteKey), x, y, Const.WIDTH_SPRITE_PLAYER, Const.HEIGHT_SPRITE_PLAYER, null);
+         }
+         
+         if (hat != null) {
+            hat.draw(g, x, y, Const.WIDTH_SPRITE_PLAYER, Const.HEIGHT_SPRITE_PLAYER);
          }
       }
    }
@@ -70,6 +76,49 @@ public class Player {
 
    public void addSpeedBoost() {
       this.abilities = new SpeedBoostDecorator(abilities);
+   }
+   
+   public void triggerHat() {
+      if (hat != null) {
+         hat.toggle();
+      }
+   }
+   
+   public Player makeShallowCopy() {
+      try {
+         return (Player) this.clone();
+      } catch (CloneNotSupportedException e) {
+         return null;
+      }
+   }
+   
+   public Player makeDeepCopy() {
+      try {
+         Player copy = (Player) this.clone();
+         copy.abilities = this.abilities.makeCopy();
+         copy.hat = this.hat.clone();
+         return copy;
+      } catch (CloneNotSupportedException e) {
+         return null;
+      }
+   }
+   
+   public void initializeForId(int id, JPanel panel, SkinManager skinManager) throws InterruptedException {
+      this.x = Client.spawn[id].x;
+      this.y = Client.spawn[id].y;
+      this.color = Sprite.personColors[id];
+      this.panel = panel;
+      this.alive = Client.alive[id];
+      this.abilities = new BasicPlayer();
+      this.playerElement = skinManager.createPlayer(id, "wait");
+      this.color = playerElement.getPlayerColor();
+      (sc = new StatusChanger(this, "wait")).start();
+   }
+   
+   public void printPlayerDetails() {
+      System.out.println("Player @ " + System.identityHashCode(this) + 
+                        " | Hat @ " + System.identityHashCode(hat) +
+                        " (visible: " + hat.isVisible() + ")");
    }
 }
 
