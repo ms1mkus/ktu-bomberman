@@ -150,17 +150,17 @@ class Server {
 
 
 
-      MapGenStrategy strategy;
+      MapGeneratorTemplate strategy;
 
       switch (config.getMapType())
       {
-          case HARD -> strategy = new MapGenStrategyHard();
-          case BARREN -> strategy = new MapGenStrategyBarren();
-          case  IMPOSSIBLE -> strategy = new MapGenStrategyImpossible();
+          case HARD -> strategy = new MapGeneratorHard();
+          case BARREN -> strategy = new MapGeneratorBarren();
+          case  IMPOSSIBLE -> strategy = new MapGeneratorImpossible();
 
 
           // EASY
-         default -> strategy = new MapGenStrategyEasy();
+         default -> strategy = new MapGeneratorEasy();
       }
 
       map = new Coordinate[Const.LIN][Const.COL];
