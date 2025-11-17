@@ -15,13 +15,16 @@ public class Client {
    static int id;
 
    final static int rateStatusUpdate = 115;
-   static Coordinate map[][] = new Coordinate[Const.LIN][Const.COL];
+   static MapSprite map[][] = new MapSprite[Const.LIN][Const.COL];
 
    static Coordinate spawn[] = new Coordinate[Const.QTY_PLAYERS];
    static boolean alive[] = new boolean[Const.QTY_PLAYERS];
 
    Client(String host, int porta) {
-      try {
+
+       Sprite.loadImages();
+
+       try {
          System.out.print("Establishing connection with server...");
          this.socket = new Socket(host, porta);
          out = new PrintStream(socket.getOutputStream(), true);  //to send to server
@@ -47,7 +50,7 @@ public class Client {
       //map
       for (int i = 0; i < Const.LIN; i++)
          for (int j = 0; j < Const.COL; j++)
-            map[i][j] = new Coordinate(Const.SIZE_SPRITE_MAP * j, Const.SIZE_SPRITE_MAP * i, in.next());
+            map[i][j] = new MapSprite(Const.SIZE_SPRITE_MAP * j, Const.SIZE_SPRITE_MAP * i, MapSpriteFactory.getMapSpriteType(in.next()));
       
       //initial status (alive or dead) of all players
       for (int i = 0; i < Const.QTY_PLAYERS; i++)
@@ -68,7 +71,7 @@ class Window extends JFrame {
    private static final long serialVersionUID = 1L;
 
    Window() {
-      Sprite.loadImages();
+
       Sprite.setMaxLoopStatus();
       
       add(new Game(Const.COL*Const.SIZE_SPRITE_MAP, Const.LIN*Const.SIZE_SPRITE_MAP));

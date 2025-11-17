@@ -200,12 +200,14 @@ public class Game extends JPanel {
    void drawMap(Graphics g) {
       for (int i = 0; i < Const.LIN; i++){
          for (int j = 0; j < Const.COL; j++) {
-            MapElement mapElement = skinManager.createMapTile(Client.map[i][j].img);
-            String spriteKey = mapElement.getSpriteKey();
-                
+            //MapElement mapElement = skinManager.createMapTile(Client.map[i][j].img);
+            //String spriteKey = mapElement.getSpriteKey();
+
+             MapSprite ms = Client.map[i][j];
+
             drawSpriteStrategy.drawImage(
-               Sprite.ht.get(spriteKey), 
-               Client.map[i][j].x, Client.map[i][j].y, 
+               ms.getSpriteType().getImage(),
+               ms.getX(), ms.getY(),
                Const.SIZE_SPRITE_MAP, Const.SIZE_SPRITE_MAP
             );
          }
@@ -244,7 +246,7 @@ public class Game extends JPanel {
    void drawBlockHealth(Graphics g) {
       for (int i = 0; i < Const.LIN; i++) {
          for (int j = 0; j < Const.COL; j++) {
-            if (Client.map[i][j].img.equals("block")) {
+            if (Client.map[i][j].getSpriteType().getName().equals("block")) {
                String key = j + "," + i;
                int health = BlockHealthManager.getHealth(key);
                
@@ -317,7 +319,7 @@ public class Game extends JPanel {
    }
 
    static void setSpriteMap(String keyWord, int l, int c) {
-      Client.map[l][c].img = keyWord;
+       Client.map[l][c].setSpriteType(MapSpriteFactory.getMapSpriteType(keyWord));
    }
    
    private void startContinuousShooting() {

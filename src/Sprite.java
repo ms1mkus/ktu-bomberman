@@ -118,7 +118,7 @@ public class Sprite {
       try {
          System.out.print("Loading images...");
          for (String keyWord : mapKeyWords)
-            ht.put(keyWord, ImageIO.read(new File(Const.BOMBERMAN_RESOURCES_DIR + "images/map/basic/" + keyWord + ".png")));
+            MapSpriteFactory.addSpriteType(keyWord, ImageIO.read(new File(Const.BOMBERMAN_RESOURCES_DIR + "images/map/basic/" + keyWord + ".png")));
 
          for (String color : personColors)
             for (String keyWord : personKeyWords)
