@@ -93,32 +93,6 @@ class MapUpdatesThrowerHandler implements ThrowerHandler {
       return y / Const.SIZE_SPRITE_MAP;
    }
 
-   private void spawnRandomPowerUp(int l, int c) {
-      RandomGenerator randomGen = RandomGenerator.getInstance();
-      // 50% chance something drops
-      if (randomGen.checkProbability(0.5)) {
-         double random = randomGen.nextDouble();
-         // 50% of drops are potions, 50% are standard power-ups
-         if (random < 0.5) {
-            // Potion branch: split 50/50 between healing and poison
-            Potion.Type t = randomGen.nextDouble() < 0.5 ? Potion.Type.HEALING : Potion.Type.POISON;
-            PotionManager.spawnPotionOnGround(l, c, t);
-         } else {
-            // Existing power-ups branch
-            double p = randomGen.nextDouble();
-            if (p < 0.5) {
-               changeMap("powerup-bigbomb", l, c);
-            } 
-            else if (p < 0.8) {
-               changeMap("powerup-speedboost", l, c);
-            } 
-            else {
-               changeMap("powerup-ghost", l, c);
-            }
-         }
-      }
-   }
-
    // checks if the fire hit any standing player (center body coordinate)
    void checkIfExplosionKilledSomeone(int linSprite, int colSprite) {
       int linPlayer, colPlayer, x, y;
@@ -138,112 +112,86 @@ class MapUpdatesThrowerHandler implements ThrowerHandler {
          }
    }
 
+   private boolean processExplosionEffect(int line, int col, int bombOwnerId, int bombL, int bombC, int dirL, int dirC, int distance, int range) {
+
+      //System.out.println("\nProcessing explosion effect at (" + line + "," + col + ")");
+      ExplosionEffectHandler chain = ExplosionChainBuilder.buildExplosionChain();
+      ExplosionResult result = processChain(chain, line, col, bombOwnerId, bombL, bombC, dirL, dirC, distance, range);
+    
+      return result.continuePropagation;
+   }
+
+   private ExplosionResult processChain(ExplosionEffectHandler handler, int line, int col, int bombOwnerId, int bombL, int bombC, int dirL, int dirC, int distance, int range) {
+      if (handler == null) {
+        return ExplosionResult.CONTINUE; // End of chain - continue through empty space
+      }
+    
+      if (handler.canHandle(line, col)) {
+        return handler.handleExplosion(line, col, bombOwnerId, bombL, bombC, dirL, dirC, distance, range);
+      } else {
+        // This handler can't handle it, try the next one
+        return processChain(getNextHandler(handler), line, col, bombOwnerId, bombL, bombC, dirL, dirC, distance, range);
+      }
+   }
+
+   private ExplosionEffectHandler getNextHandler(ExplosionEffectHandler handler) {
+      try {
+         java.lang.reflect.Field nextField = handler.getClass().getDeclaredField("next");
+         nextField.setAccessible(true);
+         return (ExplosionEffectHandler) nextField.get(handler);
+      } catch (Exception e) {
+         return null;
+      }
+   }
+
+   private void explodeInDirection(int startL, int startC, int dirL, int dirC, int range, int bombOwnerId) {
+    for (int i = 1; i <= range; i++) {
+        int currentL = startL + (dirL * i);
+        int currentC = startC + (dirC * i);
+        
+        if (currentL < 0 || currentL >= Server.map.length || 
+            currentC < 0 || currentC >= Server.map[0].length) {
+            break;
+        }
+        
+        // Use Chain of Responsibility to handle explosion effects with direction context
+        boolean continueExplosion = processExplosionEffect(currentL, currentC, bombOwnerId, startL, startC, dirL, dirC, i, range);
+        
+        if (!continueExplosion) {
+            break; // Stop explosion propagation
+        }
+    }
+}
+
    @Override
    public void run() {
       while (true) {
          if (bombPlanted) {
             bombPlanted = false;
 
+            // Bomb planting animation
             for (String index: Const.indexBombPlanted) {
                changeMap("bomb-planted-" + index, l, c);
                try {
                   Thread.sleep(Const.RATE_BOMB_UPDATE);
                } catch (InterruptedException e) {}
             }
+            
             int range = Server.player[id].getExplosionRange();
             Server.player[id].useBigBombPowerUp();
+
+            // Process the bomb center with proper context
+            processExplosionEffect(l, c, id, l, c, 0, 0, 0, range);
             
-            //explosion effects
-            new Thrower("center-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l, c).start();
-            checkIfExplosionKilledSomeone(l, c);
-
-            // DOWN - First block
-            if (l+1 < Server.map.length && Server.map[l+1][c].img.equals("floor-1")) {
-               new Thrower(range > 1 ? "mid-vert-explosion" : "down-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l+1, c).start();
-               checkIfExplosionKilledSomeone(l+1, c);
-
-               // DOWN - Second block (only for BigBomb)
-               if (range > 1 && l+2 < Server.map.length && Server.map[l+2][c].img.equals("floor-1")) {
-                  new Thrower("down-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l+2, c).start();
-                  checkIfExplosionKilledSomeone(l+2, c);
-               }
-            }
-            else if (l+1 < Server.map.length && Server.map[l+1][c].img.contains("block")) {
-               new Thrower("block-on-fire", Const.indexBlockOnFire, Const.RATE_BLOCK_UPDATE, l+1, c) {
-                  @Override
-                  public void run() {
-                     super.run();
-                     spawnRandomPowerUp(l, c);
-                  }
-               }.start();
-            }
-
-            // RIGHT - First block
-            if (c+1 < Server.map[0].length && Server.map[l][c+1].img.equals("floor-1")) {
-               new Thrower(range > 1 ? "mid-hori-explosion" : "right-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l, c+1).start();
-               checkIfExplosionKilledSomeone(l, c+1);
-                    
-               // RIGHT - Second block (only for BigBomb)
-               if (range > 1 && c+2 < Server.map[0].length && Server.map[l][c+2].img.equals("floor-1")) {
-                  new Thrower("right-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l, c+2).start();
-                  checkIfExplosionKilledSomeone(l, c+2);
-               }
-            }
-            else if (c+1 < Server.map[0].length && Server.map[l][c+1].img.contains("block")) {
-               new Thrower("block-on-fire", Const.indexBlockOnFire, Const.RATE_BLOCK_UPDATE, l, c+1) {
-                  @Override
-                  public void run() {
-                     super.run();
-                     spawnRandomPowerUp(l, c);
-                  }
-               }.start();
-            }
-
-            // UP - First block
-            if (l-1 >= 0 && Server.map[l-1][c].img.equals("floor-1")) {
-               new Thrower(range > 1 ? "mid-vert-explosion" : "up-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l-1, c).start();
-               checkIfExplosionKilledSomeone(l-1, c);
-                    
-               // UP - Second block (only for BigBomb)
-               if (range > 1 && l-2 >= 0 && Server.map[l-2][c].img.equals("floor-1")) {
-                  new Thrower("up-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l-2, c).start();
-                  checkIfExplosionKilledSomeone(l-2, c);
-               }
-            }
-            else if (l-1 >= 0 && Server.map[l-1][c].img.contains("block")) {
-               new Thrower("block-on-fire", Const.indexBlockOnFire, Const.RATE_BLOCK_UPDATE, l-1, c) {
-                  @Override
-                  public void run() {
-                     super.run();
-                     spawnRandomPowerUp(l, c);
-                  }
-               }.start();
-            }
-
-            // LEFT - First block
-            if (c-1 >= 0 && Server.map[l][c-1].img.equals("floor-1")) {
-               new Thrower(range > 1 ? "mid-hori-explosion" : "left-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l, c-1).start();
-               checkIfExplosionKilledSomeone(l, c-1);
-                    
-               // LEFT - Second block (only for BigBomb)
-               if (range > 1 && c-2 >= 0 && Server.map[l][c-2].img.equals("floor-1")) {
-                  new Thrower("left-explosion", Const.indexExplosion, Const.RATE_FIRE_UPDATE, l, c-2).start();
-                  checkIfExplosionKilledSomeone(l, c-2);
-               }
-            }
-            else if (c-1 >= 0 && Server.map[l][c-1].img.contains("block")) {
-               new Thrower("block-on-fire", Const.indexBlockOnFire, Const.RATE_BLOCK_UPDATE, l, c-1) {
-                  @Override
-                  public void run() {
-                     super.run();
-                     spawnRandomPowerUp(l, c);
-                  }
-               }.start();
-            }
+            // Explode in all four directions using the chain system
+            explodeInDirection(l, c, 1, 0, range, id);  // DOWN
+            explodeInDirection(l, c, -1, 0, range, id); // UP  
+            explodeInDirection(l, c, 0, 1, range, id);  // RIGHT
+            explodeInDirection(l, c, 0, -1, range, id); // LEFT
 
             Server.player[id].numberOfBombs++; // release bomb
-            }
-            try {Thread.sleep(0);} catch (InterruptedException e) {}
-        }
-    }
+         }
+         try {Thread.sleep(0);} catch (InterruptedException e) {}
+      }
+   }
 }

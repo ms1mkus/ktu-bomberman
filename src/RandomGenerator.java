@@ -7,14 +7,14 @@ public class RandomGenerator {
     
     private RandomGenerator() {
         this.random = new Random();
-        System.out.println("RNG SINGLETON INSTANCE CREATED - " + LocalDateTime.now().toString());
+        // System.out.println("RNG SINGLETON INSTANCE CREATED - " + LocalDateTime.now().toString());
     }
 
     public static synchronized RandomGenerator getInstance() {
         if (instance == null) {
             instance = new RandomGenerator();
         }
-        System.out.println("RNG INSTANCE ACCESSED - " + LocalDateTime.now().toString());
+        // System.out.println("RNG INSTANCE ACCESSED - " + LocalDateTime.now().toString());
         return instance;
     }
     
