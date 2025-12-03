@@ -1,56 +1,38 @@
 // Client-side facade to send chat messages in a uniform way
 class ChatFacade {
     static void sendBroadcast(String text) {
-        if (Client.out != null && text != null && !text.isBlank()) {
-            Client.out.println("chat_all " + text);
-        }
+        ChatClient.getInstance().sendBroadcast(text);
     }
 
     static void sendPrivate(int toId, String text) {
-        if (Client.out != null && text != null && !text.isBlank()) {
-            Client.out.println("chat_to " + toId + " " + text);
-        }
+        ChatClient.getInstance().sendPrivate(toId, text);
     }
 
     static void sendMute(int targetId) {
-        if (Client.out != null) {
-            Client.out.println("chat_mute " + targetId);
-        }
+        ChatClient.getInstance().sendMute(targetId);
     }
 
     static void sendUnmute(int targetId) {
-        if (Client.out != null) {
-            Client.out.println("chat_unmute " + targetId);
-        }
+        ChatClient.getInstance().sendUnmute(targetId);
     }
 
     static void sendVoteKick(int targetId) {
-        if (Client.out != null) {
-            Client.out.println("chat_votekick " + targetId);
-        }
+        VoteClient.getInstance().sendVoteKick(targetId);
     }
 
     static void sendVoteMute(int targetId) {
-        if (Client.out != null) {
-            Client.out.println("chat_votemute " + targetId);
-        }
+        VoteClient.getInstance().sendVoteMute(targetId);
     }
 
     static void sendVote(String type, int targetId, boolean yes) {
-        if (Client.out != null) {
-            Client.out.println("chat_vote " + type + " " + targetId + " " + (yes ? "yes" : "no"));
-        }
+        VoteClient.getInstance().sendVote(type, targetId, yes);
     }
 
     static void sendHelp() {
-        if (Client.out != null) {
-            Client.out.println("chat_help");
-        }
+        ChatClient.getInstance().sendHelp();
     }
 
     static void sendWeather(String query) {
-        if (Client.out != null && query != null && !query.isBlank()) {
-            Client.out.println("chat_weather " + query);
-        }
+        WeatherClient.getInstance().sendWeather(query);
     }
 }
