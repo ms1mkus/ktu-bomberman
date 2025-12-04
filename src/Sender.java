@@ -18,6 +18,10 @@ public class Sender extends KeyAdapter {
       {
          Client.out.println("removing_wall");
       }
+      else if (e.getKeyCode() == KeyEvent.VK_Y) // NEW: Toggle bomb cover
+      {
+        Client.out.println("toggleBombCover");
+      }
       else if (e.getKeyCode() == KeyEvent.VK_P) // Lukas: cycle drawing strategy (not sending it to server so shouldn't be here..)
       {
           cycleDrawingStrategy();

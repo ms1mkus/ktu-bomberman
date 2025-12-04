@@ -10,6 +10,9 @@ class PlayerData {
    int numberOfBombs;
 
    PlayerAbilities abilities;
+   private int coveredBombLine = -1;
+   private int coveredBombCol = -1;
+   private boolean hasBombCover = false;
 
    PlayerData(int x, int y) {
       this.x = x;
@@ -18,6 +21,23 @@ class PlayerData {
       this.alive = false;
       this.numberOfBombs = 1; // for 2 bombs, each bomb must be handled in a separate thread
       this.abilities = new BasicPlayer();
+   }
+
+   public void setBombCover(int line, int col) {
+      coveredBombLine = line;
+      coveredBombCol = col;
+      hasBombCover = true;
+   }
+
+   public void removeBombCover() {
+      coveredBombLine = -1;
+      coveredBombCol = -1;
+      hasBombCover = false;
+   }
+
+   public boolean isBombCovered(int line, int col) {
+      boolean result = hasBombCover && coveredBombLine == line && coveredBombCol == col;
+      return result;
    }
 
    public void addGhost() {
