@@ -18,7 +18,8 @@ class Parser
 
         switch (t.type)
         {
-            case KILL: retExpression = kill();
+            case KILL: retExpression = kill(); break;
+            case TP: retExpression = teleport(); break;
         }
 
         if (retExpression == null)
@@ -38,6 +39,34 @@ class Parser
             return new KillExpression();
 
        return null;
+    }
+
+    private Expression teleport()
+    {
+        if (consume(TokenType.TP) != null)
+        {
+            int target;
+            int destination;
+
+            Token tt = consume(TokenType.NUMBER);
+
+
+            if (tt != null)
+            {
+                target = Integer.parseInt(tt.text);
+
+                Token td = consume(TokenType.NUMBER);
+
+                if (td != null)
+                {
+                    destination = Integer.parseInt(td.text);
+
+                    return new TeleportExpression(target, destination);
+                }
+            }
+        }
+
+        return null;
     }
 
     private Token consume(TokenType expected)

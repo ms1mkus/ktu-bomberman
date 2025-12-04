@@ -25,3 +25,39 @@ class KillExpression implements Expression
         return "Killing player " + playerId;
     }
 }
+
+class TeleportExpression implements Expression
+{
+
+    int target;
+    int destination;
+
+    public TeleportExpression(int target, int destination)
+    {
+        this.target = target;
+        this.destination = destination;
+    }
+
+    @Override
+    public String interpret(int playerId)
+    {
+
+        if (target >= 0 && target < Server.player.length && Server.player[target].alive &&
+        destination >= 0 && destination < Server.player.length && Server.player[destination].alive)
+        {
+
+            int newX = Server.player[destination].x;
+            int newY = Server.player[destination].y;
+
+            Server.player[target].x = newX;
+            Server.player[target].y = newY;
+
+            ClientManager.sendToAllClients(target + " newCoordinate " + newX + " " + newY);
+
+
+            return "Teleporting player " + target + " to " + destination;
+        }
+
+        return "Teleporting failed";
+    }
+}
