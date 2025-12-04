@@ -22,7 +22,7 @@ public class Sprite {
       "bomb-icone-1", "bomb-icone-2", 
       "bomb-red-icone-1", "bomb-red-icone-2", 
       "bomb-planted-1", "bomb-planted-2", "bomb-planted-3", 
-      "bomb-planted-red-1", "bomb-planted-red-2", "bomb-planted-red-3", 
+      "bomb-planted-red-1", "bomb-planted-red-2", "bomb-planted-red-3", "bomb-covered",
       "center-explosion-1", "center-explosion-2", "center-explosion-3", "center-explosion-4", "center-explosion-5", 
       "down-explosion-1", "down-explosion-2", "down-explosion-3", "down-explosion-4", "down-explosion-5", 
       "right-explosion-1", "right-explosion-2", "right-explosion-3", "right-explosion-4", "right-explosion-5", 
