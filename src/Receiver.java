@@ -80,6 +80,12 @@ public class Receiver extends Thread {
             // no local state tracked beyond visuals for now
             Client.in.next(); // type
          }
+         else if (str.equals("console_res"))
+         {
+             String consoleResponseMessage = Client.in.nextLine().trim();
+             Console.log(consoleResponseMessage);
+         }
+
       }
       Client.in.close();
    }

@@ -38,6 +38,12 @@ public class Sender extends KeyAdapter {
       return ok;
    }
 
+   public void sendConsoleCommand(String cmd)
+   {
+       Client.out.println("console " + cmd);
+   }
+
+
    int currentDrawStrategy = 0;
    private void cycleDrawingStrategy()
    {

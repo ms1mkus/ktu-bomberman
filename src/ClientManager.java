@@ -1,7 +1,10 @@
+import jdk.jfr.Experimental;
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -54,8 +57,12 @@ class ClientManager extends Thread {
 
    public void run() {
    while (in.hasNextLine()) { // connection established with client this.id
-         String str[] = in.nextLine().split(" ");
-         
+
+
+        String receivedString = in.nextLine();
+
+         String str[] = receivedString.split(" ");
+
          if (str[0].equals("keyCodePressed") && Server.player[id].alive)
          {
             ct.keyCodePressed(Integer.parseInt(str[1]));
@@ -88,6 +95,22 @@ class ClientManager extends Thread {
                PotionManager.applyPotionEffect(id, p, tx, ty);
             }
          }
+         else if (str.length >= 2 && str[0].equals("console"))
+         {
+             String consoleCommand = receivedString.substring(receivedString.indexOf(' ') + 1);
+
+             Lexer lexer = new Lexer(consoleCommand);
+             List<Token> tokens = lexer.tokenize();
+
+             Parser parser = new Parser(tokens);
+             Expression e = parser.parse();
+
+             String messageBack = e.interpret(id);
+
+             SendConsoleResponse(messageBack);
+
+
+         }
       }
       clientDesconnected();
    }
@@ -104,6 +127,11 @@ class ClientManager extends Thread {
       for (int i = 0; i < Const.QTY_PLAYERS; i++)
          out.print(" " + Server.player[i].x + " " + Server.player[i].y);
       out.print("\n");
+   }
+
+   void SendConsoleResponse(String message)
+   {
+       out.print(id + " console_res " + message + "\n");
    }
 
    void clientDesconnected() {
