@@ -14,6 +14,9 @@ class PlayerData {
    private int coveredBombCol = -1;
    private boolean hasBombCover = false;
 
+   private PlayerState currentState;
+   private long lastUpdateTime;
+
    PlayerData(int x, int y) {
       this.x = x;
       this.y = y;
@@ -21,6 +24,66 @@ class PlayerData {
       this.alive = false;
       this.numberOfBombs = 1; // for 2 bombs, each bomb must be handled in a separate thread
       this.abilities = new BasicPlayer();
+
+      this.currentState = new NormalState();
+      this.lastUpdateTime = System.currentTimeMillis();
+   }
+
+   public void updateState(int playerId) {
+      long currentTime = System.currentTimeMillis();
+      long deltaTime = currentTime - lastUpdateTime;
+      lastUpdateTime = currentTime;
+        
+      PlayerState newState = currentState.update(deltaTime);
+      if (newState != currentState) {
+         currentState = newState;
+         ClientManager.sendToAllClients(playerId + " stateChange " + getAnimationType());
+      }
+   }
+    
+   public void setMoving(boolean moving, int playerId) {
+      if (moving) {
+         PlayerState newState = currentState.onMovementInput();
+         if (newState != currentState) {
+            currentState = newState;
+            ClientManager.sendToAllClients(playerId + " stateChange " + getAnimationType());
+         }
+      }
+   }
+    
+   public void handleActionInput(int playerId) {
+      PlayerState newState = currentState.onActionInput();
+      if (newState != currentState) {
+         currentState = newState;
+         ClientManager.sendToAllClients(playerId + " stateChange " + getAnimationType());
+      }
+   }
+    
+   public void setState(PlayerState newState, int playerId) {
+      if (newState != currentState) {
+         currentState = newState;
+         ClientManager.sendToAllClients(playerId + " stateChange " + getAnimationType());
+      }
+   }
+    
+   public int getMovementSpeed() {
+      return abilities.getMovementSpeed();
+   }
+    
+   public boolean canPlantBomb() {
+      return currentState.canPlantBomb() && numberOfBombs > 0;
+   }
+    
+   public boolean canMove() {
+      return currentState.canMove();
+   }
+    
+   public String getAnimationType() {
+      String anim = currentState.getAnimationType();
+      if (anim.equals("run") && !Sprite.maxLoopStatus.containsKey("run")) {
+         return "down"; // Use walking animation instead
+      }
+      return anim;
    }
 
    public void setBombCover(int line, int col) {
@@ -56,9 +119,6 @@ class PlayerData {
       return abilities.getExplosionRange();
    }
 
-   public int getMovementSpeed() {
-      return abilities.getMovementSpeed();
-   }
    
    public boolean useBigBombPowerUp() {
       if (abilities instanceof BigBombDecorator) {

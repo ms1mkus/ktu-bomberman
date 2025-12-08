@@ -54,7 +54,8 @@ class TeleportExpression implements Expression
 
             ClientManager.sendToAllClients(target + " newCoordinate " + newX + " " + newY);
 
-
+            Server.player[target].setState(new TeleportState(), target);
+            ClientManager.sendToAllClients(target + " newCoordinate " + newX + " " + newY);
             return "Teleporting player " + target + " to " + destination;
         }
 

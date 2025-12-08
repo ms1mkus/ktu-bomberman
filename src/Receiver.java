@@ -21,7 +21,13 @@ public class Receiver extends Thread {
          this.p = fromWhichPlayerIs(Client.in.nextInt()); //client id
          str = Client.in.next();
 
-         if (str.equals("mapUpdate")) {
+         if (str.equals("stateChange")) {
+            String animationType = Client.in.next();
+            if (p != null && p.sc != null) {
+               p.sc.setLoopStatus(animationType);
+            }
+         }
+         else if (str.equals("mapUpdate")) {
             Game.setSpriteMap(Client.in.next(), Client.in.nextInt(), Client.in.nextInt());
             Game.you.panel.repaint();
          }
