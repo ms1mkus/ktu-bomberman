@@ -19,6 +19,45 @@ public class Client {
 
    static Coordinate spawn[] = new Coordinate[Const.QTY_PLAYERS];
    static boolean alive[] = new boolean[Const.QTY_PLAYERS];
+   static boolean singlePlayerMode = false;
+
+   static void restoreState(GameStateMemento memento) {
+      singlePlayerMode = true; // Stop receiving updates
+      
+      // Restore Map
+      Coordinate[][] savedMap = memento.getMapState();
+      for (int i = 0; i < Const.LIN; i++) {
+          for (int j = 0; j < Const.COL; j++) {
+              map[i][j].img = savedMap[i][j].img;
+              map[i][j].x = savedMap[i][j].x;
+              map[i][j].y = savedMap[i][j].y;
+          }
+      }
+  
+      // Restore Players
+      GameStateMemento.PlayerState[] savedPlayers = memento.getPlayerStates();
+      Player[] currentPlayers = new Player[] { Game.you, Game.enemy1, Game.enemy2, Game.enemy3 };
+      
+      for (int i = 0; i < currentPlayers.length; i++) {
+          if (currentPlayers[i] != null && savedPlayers[i] != null) {
+              currentPlayers[i].x = savedPlayers[i].x;
+              currentPlayers[i].y = savedPlayers[i].y;
+              currentPlayers[i].status = savedPlayers[i].status;
+              currentPlayers[i].alive = savedPlayers[i].alive;
+              if (currentPlayers[i].sc != null) {
+                   String fullStatus = savedPlayers[i].status;
+                   // Extract base status (e.g., "down" from "down-2")
+                   String baseStatus = fullStatus.split("-")[0];
+                   currentPlayers[i].sc.setLoopStatus(baseStatus);
+              }
+          }
+      }
+      
+      // Repaint
+      if (Game.you != null && Game.you.panel != null) {
+          Game.you.panel.repaint();
+      }
+  }
 
    Client(String host, int porta) {
       try {
@@ -89,6 +128,10 @@ class Window extends JFrame {
             } 
             else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_F2) {
                game.togglePlayerProtanopia();
+            }
+            else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_F12) {
+               new GameWorld().accept(new WinterVisitor());
+               game.repaint();
             }
          }
       });
