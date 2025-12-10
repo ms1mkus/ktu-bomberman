@@ -1,11 +1,14 @@
 //thread that triggers gradual map changes right after a bomb is planted
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
 class MapUpdatesThrowerHandler implements ThrowerHandler {
    boolean bombPlanted;
    int id, l, c;
 
+   private static Map<String, Integer> bombOwners = new HashMap<>();
    private final Stack<BuildWallCommand> builtWalls = new Stack<>();
 
    MapUpdatesThrowerHandler(int id) {
@@ -21,6 +24,19 @@ class MapUpdatesThrowerHandler implements ThrowerHandler {
       this.l = y/Const.SIZE_SPRITE_MAP;
 
       this.bombPlanted = true;
+
+      String key = l + "," + c;
+      bombOwners.put(key, id);
+   }
+
+   static int getBombOwner(int line, int col) {
+      String key = line + "," + col;
+      return bombOwners.getOrDefault(key, -1);
+   }
+   
+   static void removeBombOwner(int line, int col) {
+      String key = line + "," + col;
+      bombOwners.remove(key);
    }
 
    void setBuildableWall(String dir)
@@ -169,7 +185,8 @@ class MapUpdatesThrowerHandler implements ThrowerHandler {
          if (bombPlanted) {
             bombPlanted = false;
 
-            // Bomb planting animation
+            SoundEffect sound = SoundEffectFactory.getSound("bomb_plant");
+            sound.play(0.7f);
             for (String index: Const.indexBombPlanted) {
                changeMap("bomb-planted-" + index, l, c);
                try {
@@ -177,19 +194,36 @@ class MapUpdatesThrowerHandler implements ThrowerHandler {
                } catch (InterruptedException e) {}
             }
             
+            // CHECK: Is this bomb itself covered?
+            boolean bombCenterCovered = false;
+            for (int i = 0; i < Const.QTY_PLAYERS; i++) {
+               if (Server.player[i] != null && Server.player[i].isBombCovered(l, c)) {
+                     bombCenterCovered = true;
+                     //System.out.println("BOMB CENTER IS COVERED at (" + l + "," + c + ")");
+                     break;
+               }
+            }
+            
+            if (bombCenterCovered) {
+               changeMap("floor-1", l, c);
+               Server.player[id].numberOfBombs++;
+               continue;
+            }
+
+            sound = SoundEffectFactory.getSound("bomb_explode");
+            sound.play(0.5f);
+            
             int range = Server.player[id].getExplosionRange();
             Server.player[id].useBigBombPowerUp();
 
-            // Process the bomb center with proper context
             processExplosionEffect(l, c, id, l, c, 0, 0, 0, range);
             
-            // Explode in all four directions using the chain system
             explodeInDirection(l, c, 1, 0, range, id);  // DOWN
             explodeInDirection(l, c, -1, 0, range, id); // UP  
             explodeInDirection(l, c, 0, 1, range, id);  // RIGHT
             explodeInDirection(l, c, 0, -1, range, id); // LEFT
 
-            Server.player[id].numberOfBombs++; // release bomb
+            Server.player[id].numberOfBombs++;
          }
          try {Thread.sleep(0);} catch (InterruptedException e) {}
       }

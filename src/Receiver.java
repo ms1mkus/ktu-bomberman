@@ -23,6 +23,14 @@ public class Receiver extends Thread {
          this.p = fromWhichPlayerIs(Client.in.nextInt()); //client id
          str = Client.in.next();
 
+         if (str.equals("stateChange")) {
+            String animationType = Client.in.next();
+            if (p != null && p.sc != null) {
+               p.sc.setLoopStatus(animationType);
+            }
+         }
+         else if (str.equals("mapUpdate")) {
+            Game.setSpriteMap(Client.in.next(), Client.in.nextInt(), Client.in.nextInt());
          if (str.equals("mapUpdate")) {
             String img = Client.in.next();
             int l = Client.in.nextInt();
@@ -121,6 +129,12 @@ public class Receiver extends Thread {
             // no local state tracked beyond visuals for now
             Client.in.next(); // type
          }
+         else if (str.equals("console_res"))
+         {
+             String consoleResponseMessage = Client.in.nextLine().trim();
+             Console.log(consoleResponseMessage);
+         }
+
       }
       Client.in.close();
    }

@@ -1,7 +1,10 @@
+import jdk.jfr.Experimental;
+
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -22,6 +25,9 @@ class ClientManager extends Thread {
    CoordinatesThrowerHandler ct;
    MapUpdatesThrowerHandler mt;
    BulletThrowerHandler bt;
+
+   private int playerBombLine = -1;
+   private int playerBombCol = -1;
 
    ClientManager(Socket clientSocket, int id) {
       this.id = id;
@@ -54,8 +60,12 @@ class ClientManager extends Thread {
 
    public void run() {
    while (in.hasNextLine()) { // connection established with client this.id
-         String str[] = in.nextLine().split(" ");
-         
+
+
+         String receivedString = in.nextLine();
+
+         String str[] = receivedString.split(" ");
+
          if (str[0].equals("keyCodePressed") && Server.player[id].alive)
          {
             ct.keyCodePressed(Integer.parseInt(str[1]));
@@ -63,9 +73,16 @@ class ClientManager extends Thread {
          else if (str[0].equals("keyCodeReleased") && Server.player[id].alive) {
             ct.keyCodeReleased(Integer.parseInt(str[1]));
          } 
-         else if (str[0].equals("pressedSpace") && Server.player[id].numberOfBombs >= 1) {
-            Server.player[id].numberOfBombs--;
-            mt.setBombPlanted(Integer.parseInt(str[1]), Integer.parseInt(str[2]));
+         else if (str[0].equals("pressedSpace") && Server.player[id].alive) {
+            Server.player[id].handleActionInput(id);
+
+            if (Server.player[id].canPlantBomb()) {
+               Server.player[id].numberOfBombs--;
+               mt.setBombPlanted(Integer.parseInt(str[1]), Integer.parseInt(str[2]));
+            }
+         }
+         else if (str[0].equals("toggleBombCover") && Server.player[id].alive) {
+            handleBombCoverToggle();
          }
          else if (str[0].equals("build_wall") && Server.player[id].alive)
          {
@@ -88,8 +105,57 @@ class ClientManager extends Thread {
                PotionManager.applyPotionEffect(id, p, tx, ty);
             }
          }
+         else if (str.length >= 2 && str[0].equals("console"))
+         {
+            String consoleCommand = receivedString.substring(receivedString.indexOf(' ') + 1);
+
+            Lexer lexer = new Lexer(consoleCommand);
+            List<Token> tokens = lexer.tokenize();
+
+            Parser parser = new Parser(tokens);
+            Expression e = parser.parse();
+
+            String messageBack = e.interpret(id);
+
+            SendConsoleResponse(messageBack);
+
+
+         }
       }
       clientDesconnected();
+   }
+   
+   private void handleBombCoverToggle() {
+      PlayerData player = Server.player[id];
+      
+      if (playerBombLine == -1 || playerBombCol == -1) {
+         return;
+      }
+      
+      int line = playerBombLine;
+      int col = playerBombCol;
+      
+      // Check what's actually on the map
+      String tile = Server.map[line][col].img;
+      
+      if (!tile.contains("bomb")) {
+         playerBombLine = -1;
+         playerBombCol = -1;
+         return;
+      }
+      
+      // Check current cover state
+      boolean currentlyCovered = player.isBombCovered(line, col);
+      
+      if (currentlyCovered) {
+         // Remove cover
+         player.removeBombCover();
+         MapUpdatesThrowerHandler.changeMap("bomb-planted-0", line, col);
+      } else {
+         // Add cover
+         player.setBombCover(line, col);
+         MapUpdatesThrowerHandler.changeMap("bomb-covered", line, col);
+      }
    }
 
    void sendInitialSettings() {
@@ -104,6 +170,11 @@ class ClientManager extends Thread {
       for (int i = 0; i < Const.QTY_PLAYERS; i++)
          out.print(" " + Server.player[i].x + " " + Server.player[i].y);
       out.print("\n");
+   }
+
+   void SendConsoleResponse(String message)
+   {
+       out.print(id + " console_res " + message + "\n");
    }
 
    void clientDesconnected() {

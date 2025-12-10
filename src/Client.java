@@ -1,11 +1,11 @@
+import java.awt.*;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Scanner;
 
-import javax.swing.JFrame;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 
 public class Client {
 
@@ -99,17 +99,21 @@ public class Client {
    
    public static void main(String[] args) {
       new Client("127.0.0.1", 8383);
-      new Window();
+
+      Sender sender = new Sender();
+
+      Window window = new Window(sender);
+      Console console = new Console(window, sender);
    }
 }
 
 class Window extends JFrame {
    private static final long serialVersionUID = 1L;
 
-   Window() {
+   Window(Sender sender) {
       Sprite.loadImages();
       Sprite.setMaxLoopStatus();
-      
+
       add(new Game(Const.COL*Const.SIZE_SPRITE_MAP, Const.LIN*Const.SIZE_SPRITE_MAP));
       setTitle("bomberman");
       pack();
@@ -117,15 +121,15 @@ class Window extends JFrame {
       setLocationRelativeTo(null);
       setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-      addKeyListener(new Sender());
+      addKeyListener(sender);
       addKeyListener(new java.awt.event.KeyAdapter() {
          @Override
          public void keyPressed(java.awt.event.KeyEvent e) {
             Game game = (Game) getContentPane().getComponent(0);
-                
+
             if (e.getKeyCode() == java.awt.event.KeyEvent.VK_F1) {
                game.toggleMapProtanopia();
-            } 
+            }
             else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_F2) {
                game.togglePlayerProtanopia();
             }
@@ -136,4 +140,47 @@ class Window extends JFrame {
          }
       });
    }
+}
+
+class Console extends JFrame
+{
+    private static final long serialVersionUID = 1L;
+
+    public static JTextArea out;
+    private JTextField input;
+
+
+    public Console(Window gameWindow, Sender sender) {
+        setTitle("Console");
+
+        out = new JTextArea(20, 50);
+        out.setEditable(false);
+        JScrollPane scroll = new JScrollPane(out);
+
+        input = new JTextField();
+        input.addActionListener(e -> {
+            String cmd = input.getText();
+            input.setText("");
+
+            log("> " + cmd);
+
+            sender.sendConsoleCommand(cmd);
+
+        });
+
+        setLayout(new BorderLayout());
+        add(scroll, BorderLayout.CENTER);
+        add(input, BorderLayout.SOUTH);
+
+        pack();
+        int x = gameWindow.getX() + gameWindow.getWidth();
+        int y = gameWindow.getY();
+        setLocation(x, y);
+        setVisible(true);
+    }
+
+    public static void log(String msg) {
+        out.append(msg + "\n");
+        out.setCaretPosition(out.getDocument().getLength()); // auto scroll
+    }
 }
