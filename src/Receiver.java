@@ -30,8 +30,6 @@ public class Receiver extends Thread {
             }
          }
          else if (str.equals("mapUpdate")) {
-            Game.setSpriteMap(Client.in.next(), Client.in.nextInt(), Client.in.nextInt());
-         if (str.equals("mapUpdate")) {
             String img = Client.in.next();
             int l = Client.in.nextInt();
             int c = Client.in.nextInt();

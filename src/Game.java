@@ -139,6 +139,8 @@ public class Game extends JPanel {
          g.drawString("CLASSIC MODE (F1: Map, F2: Players)", 10, 20);
       }
       
+      drawSpriteStrategy.drawOverlay(getWidth(), getHeight());
+
       // System.out.format("%s: %s [%04d, %04d]\n", Game.you.color, Game.you.status, Game.you.x, Game.you.y);;
       Toolkit.getDefaultToolkit().sync();
    }
