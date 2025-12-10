@@ -33,7 +33,6 @@ public class BlockDestructionHandler implements ExplosionEffectHandler {
             } else {
                 MapUpdatesThrowerHandler.changeMap("powerup-ghost", line, col);
             }
-            System.out.println("Power-up spawned at (" + line + "," + col + ")");
         }
     }
     

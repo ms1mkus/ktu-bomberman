@@ -184,7 +184,9 @@ class MapUpdatesThrowerHandler implements ThrowerHandler {
       while (true) {
          if (bombPlanted) {
             bombPlanted = false;
-            
+
+            SoundEffect sound = SoundEffectFactory.getSound("bomb_plant");
+            sound.play(0.7f);
             for (String index: Const.indexBombPlanted) {
                changeMap("bomb-planted-" + index, l, c);
                try {
@@ -207,6 +209,9 @@ class MapUpdatesThrowerHandler implements ThrowerHandler {
                Server.player[id].numberOfBombs++;
                continue;
             }
+
+            sound = SoundEffectFactory.getSound("bomb_explode");
+            sound.play(0.5f);
             
             int range = Server.player[id].getExplosionRange();
             Server.player[id].useBigBombPowerUp();

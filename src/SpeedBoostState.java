@@ -1,4 +1,3 @@
-// SpeedBoostState.java
 public class SpeedBoostState implements PlayerState {
     private long remainingDuration = 10000;
     

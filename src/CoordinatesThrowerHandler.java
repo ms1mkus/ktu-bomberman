@@ -67,6 +67,8 @@ class CoordinatesThrowerHandler implements ThrowerHandler
                Server.player[id].addBigBomb();
                MapUpdatesThrowerHandler.changeMap("floor-1", line, col);
                ClientManager.sendToAllClients(id + " powerUp bigbomb");
+               SoundEffect sound = SoundEffectFactory.getSound("powerup_pickup");
+               sound.play(0.5f);
                return;
             }
             else if (Server.map[line][col].img.equals("powerup-speedboost")) {
@@ -74,12 +76,16 @@ class CoordinatesThrowerHandler implements ThrowerHandler
                MapUpdatesThrowerHandler.changeMap("floor-1", line, col);
                ClientManager.sendToAllClients(id + " powerUp speedboost");
                Server.player[id].setState(new SpeedBoostState(), id);
+               SoundEffect sound = SoundEffectFactory.getSound("powerup_pickup");
+               sound.play(0.5f);
                return;
             }
             else if (Server.map[line][col].img.equals("powerup-ghost")) {
                Server.player[id].addGhost();
                MapUpdatesThrowerHandler.changeMap("floor-1", line, col);
                ClientManager.sendToAllClients(id + " powerUp ghost");
+               SoundEffect sound = SoundEffectFactory.getSound("powerup_pickup");
+               sound.play(0.5f);
                return;
             }
          }
