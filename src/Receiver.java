@@ -18,11 +18,27 @@ public class Receiver extends Thread {
    public void run() {
       String str;
       while (Client.in.hasNextLine()) {
+         if (Client.singlePlayerMode) break; // Stop processing updates in single player mode
+
          this.p = fromWhichPlayerIs(Client.in.nextInt()); //client id
          str = Client.in.next();
 
-         if (str.equals("mapUpdate")) {
-            Game.setSpriteMap(Client.in.next(), Client.in.nextInt(), Client.in.nextInt());
+         if (str.equals("stateChange")) {
+            String animationType = Client.in.next();
+            if (p != null && p.sc != null) {
+               p.sc.setLoopStatus(animationType);
+            }
+         }
+         else if (str.equals("mapUpdate")) {
+            String img = Client.in.next();
+            int l = Client.in.nextInt();
+            int c = Client.in.nextInt();
+            
+            if (img.contains("bomb-planted")) {
+               GameStateCaretaker.saveState();
+            }
+
+            Game.setSpriteMap(img, l, c);
             Game.you.panel.repaint();
          }
          else if (str.equals("bulletUpdate")) {
@@ -50,7 +66,38 @@ public class Receiver extends Thread {
             Game.you.panel.repaint();
          }
          else if (str.equals("newStatus")) {
-            p.sc.setLoopStatus(Client.in.next());
+            String status = Client.in.next();
+            p.sc.setLoopStatus(status);
+
+            if (p == Game.you && status.startsWith("dead") && !Client.singlePlayerMode) {
+               javax.swing.SwingUtilities.invokeLater(() -> {
+                   java.util.List<GameStateMemento> mementos = GameStateCaretaker.getMementos();
+                   if (mementos.isEmpty()) return;
+
+                   Object[] options = new Object[mementos.size()];
+                   for (int i = 0; i < mementos.size(); i++) {
+                       options[i] = "State " + (i + 1) + " (" + mementos.get(i).getTimestamp() + ")";
+                   }
+
+                   String s = (String) javax.swing.JOptionPane.showInputDialog(
+                           null,
+                           "You died! Select a state to replay in Single Player Mode:",
+                           "Game Over - Memento",
+                           javax.swing.JOptionPane.PLAIN_MESSAGE,
+                           null,
+                           options,
+                           options[options.length - 1]);
+
+                   if ((s != null) && (s.length() > 0)) {
+                       for (int i = 0; i < options.length; i++) {
+                           if (options[i].equals(s)) {
+                               Client.restoreState(mementos.get(i));
+                               break;
+                           }
+                       }
+                   }
+               });
+            }
          }
          else if (str.equals("stopStatusUpdate")) {
             p.sc.stopLoopStatus();

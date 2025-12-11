@@ -17,7 +17,9 @@ class CoordinatesThrowerHandler implements ThrowerHandler
       int newY = Server.player[id].y;
       
       while (true) {
+         Server.player[id].updateState(id);
          if (up || down || right || left) {
+            Server.player[id].setMoving(true, id);
             int speedMultiplier = Server.player[id].getMovementSpeed();
             int moveDistance = Const.RESIZE * speedMultiplier;
             
@@ -65,18 +67,25 @@ class CoordinatesThrowerHandler implements ThrowerHandler
                Server.player[id].addBigBomb();
                MapUpdatesThrowerHandler.changeMap("floor-1", line, col);
                ClientManager.sendToAllClients(id + " powerUp bigbomb");
+               SoundEffect sound = SoundEffectFactory.getSound("powerup_pickup");
+               sound.play(0.5f);
                return;
             }
             else if (Server.map[line][col].img.equals("powerup-speedboost")) {
                Server.player[id].addSpeedBoost();
                MapUpdatesThrowerHandler.changeMap("floor-1", line, col);
                ClientManager.sendToAllClients(id + " powerUp speedboost");
+               Server.player[id].setState(new SpeedBoostState(), id);
+               SoundEffect sound = SoundEffectFactory.getSound("powerup_pickup");
+               sound.play(0.5f);
                return;
             }
             else if (Server.map[line][col].img.equals("powerup-ghost")) {
                Server.player[id].addGhost();
                MapUpdatesThrowerHandler.changeMap("floor-1", line, col);
                ClientManager.sendToAllClients(id + " powerUp ghost");
+               SoundEffect sound = SoundEffectFactory.getSound("powerup_pickup");
+               sound.play(0.5f);
                return;
             }
          }
@@ -94,6 +103,10 @@ class CoordinatesThrowerHandler implements ThrowerHandler
    boolean coordinateIsValid(int newX, int newY) {
       if (!Server.player[id].alive)
          return false;
+
+      if (!Server.player[id].canMove()) {
+         return false;
+      }
 
    //checks if the player went into the fire (center body coordinate)
       int xBody = newX + Const.WIDTH_SPRITE_PLAYER/2;

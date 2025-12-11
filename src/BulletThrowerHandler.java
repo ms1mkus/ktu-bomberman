@@ -137,6 +137,9 @@ class BulletThrowerHandler implements ThrowerHandler {
         while (true) {
             if (bulletFired) {
                 bulletFired = false;
+
+                SoundEffect sound = SoundEffectFactory.getSound("bullet_shot");
+                sound.play(0.5f);
                 
                 Bullet bullet = bulletFactory.createBullet();
                 
@@ -224,6 +227,9 @@ class BulletThrowerHandler implements ThrowerHandler {
                 if (checkWallCollision(pos[0], pos[1]) || 
                     checkBlockCollision(pos[0], pos[1], damage, bullet) || 
                     checkPlayerCollision(pos[0], pos[1])) {
+
+                    SoundEffect sound = SoundEffectFactory.getSound("bullet_hit");
+                    sound.play(0.5f);
                     active = false;
                 }
                 

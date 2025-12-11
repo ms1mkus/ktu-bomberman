@@ -62,7 +62,7 @@ class ClientManager extends Thread {
    while (in.hasNextLine()) { // connection established with client this.id
 
 
-        String receivedString = in.nextLine();
+         String receivedString = in.nextLine();
 
          String str[] = receivedString.split(" ");
 
@@ -73,17 +73,17 @@ class ClientManager extends Thread {
          else if (str[0].equals("keyCodeReleased") && Server.player[id].alive) {
             ct.keyCodeReleased(Integer.parseInt(str[1]));
          } 
-         else if (str[0].equals("pressedSpace") && Server.player[id].numberOfBombs >= 1) {
-            Server.player[id].numberOfBombs--;
-            mt.setBombPlanted(Integer.parseInt(str[1]), Integer.parseInt(str[2]));
-            playerBombLine = mt.l;
-            playerBombCol = mt.c;
-            System.out.println("DEBUG: Player " + id + " planted bomb at (" + playerBombLine + "," + playerBombCol + ")");
-      }
-      else if (str[0].equals("toggleBombCover") && Server.player[id].alive) {
-         System.out.println("DEBUG: Player " + id + " pressed Y");
-         handleBombCoverToggle();
-      }
+         else if (str[0].equals("pressedSpace") && Server.player[id].alive) {
+            Server.player[id].handleActionInput(id);
+
+            if (Server.player[id].canPlantBomb()) {
+               Server.player[id].numberOfBombs--;
+               mt.setBombPlanted(Integer.parseInt(str[1]), Integer.parseInt(str[2]));
+            }
+         }
+         else if (str[0].equals("toggleBombCover") && Server.player[id].alive) {
+            handleBombCoverToggle();
+         }
          else if (str[0].equals("build_wall") && Server.player[id].alive)
          {
             mt.setBuildableWall(str[1]);
@@ -107,60 +107,50 @@ class ClientManager extends Thread {
          }
          else if (str.length >= 2 && str[0].equals("console"))
          {
-             String consoleCommand = receivedString.substring(receivedString.indexOf(' ') + 1);
+            String consoleCommand = receivedString.substring(receivedString.indexOf(' ') + 1);
 
              String messageBack = ConsoleCommandHelper.Execute(id, consoleCommand);
 
-             SendConsoleResponse(messageBack);
+            SendConsoleResponse(messageBack);
 
 
          }
       }
       clientDesconnected();
    }
+
    private void handleBombCoverToggle() {
-   PlayerData player = Server.player[id];
-   
-   System.out.println("DEBUG: handleBombCoverToggle called. Bomb pos: (" + playerBombLine + "," + playerBombCol + ")");
-   
-   if (playerBombLine == -1 || playerBombCol == -1) {
-      System.out.println("DEBUG: No bomb tracked for player " + id);
-      return;
+      PlayerData player = Server.player[id];
+
+      if (playerBombLine == -1 || playerBombCol == -1) {
+         return;
+      }
+
+      int line = playerBombLine;
+      int col = playerBombCol;
+
+      // Check what's actually on the map
+      String tile = Server.map[line][col].img;
+
+      if (!tile.contains("bomb")) {
+         playerBombLine = -1;
+         playerBombCol = -1;
+         return;
+      }
+
+      // Check current cover state
+      boolean currentlyCovered = player.isBombCovered(line, col);
+
+      if (currentlyCovered) {
+         // Remove cover
+         player.removeBombCover();
+         MapUpdatesThrowerHandler.changeMap("bomb-planted-0", line, col);
+      } else {
+         // Add cover
+         player.setBombCover(line, col);
+         MapUpdatesThrowerHandler.changeMap("bomb-covered", line, col);
+      }
    }
-   
-   int line = playerBombLine;
-   int col = playerBombCol;
-   
-   // Check what's actually on the map
-   String tile = Server.map[line][col].img;
-   System.out.println("DEBUG: Tile at (" + line + "," + col + ") is: " + tile);
-   
-   if (!tile.contains("bomb")) {
-      System.out.println("DEBUG: No bomb at that position");
-      playerBombLine = -1;
-      playerBombCol = -1;
-      return;
-   }
-   
-   // Check current cover state
-   boolean currentlyCovered = player.isBombCovered(line, col);
-   System.out.println("DEBUG: Currently covered? " + currentlyCovered);
-   
-   if (currentlyCovered) {
-      // Remove cover
-      player.removeBombCover();
-      MapUpdatesThrowerHandler.changeMap("bomb-planted-0", line, col);
-      System.out.println("DEBUG: Removed cover from (" + line + "," + col + ")");
-   } else {
-      // Add cover
-      player.setBombCover(line, col);
-      MapUpdatesThrowerHandler.changeMap("bomb-covered", line, col);
-      System.out.println("DEBUG: Added cover to (" + line + "," + col + ")");
-   }
-   
-   // Verify
-   System.out.println("DEBUG: Now covered? " + player.isBombCovered(line, col));
-}
 
    void sendInitialSettings() {
       out.print(id);
