@@ -16,11 +16,46 @@ class NopExpression implements Expression
 
 class KillExpression implements Expression
 {
+
+    int target;
+    boolean self;
+
+    KillExpression()
+    {
+       target = 0;
+       self = true;
+    }
+
+    KillExpression(int target)
+    {
+        this.target = target;
+        self = false;
+    }
+
     @Override
     public String interpret(int playerId)
     {
-        Server.player[playerId].alive = false;
-        ClientManager.sendToAllClients(playerId + " newStatus dead");
+
+        if (self)
+        {
+            if (Server.IsValidAndAlivePlayer(playerId))
+            {
+                Server.player[playerId].alive = false;
+                ClientManager.sendToAllClients(playerId + " newStatus dead");
+            }
+
+        }
+        else
+        {
+            if (Server.IsValidAndAlivePlayer(target))
+            {
+                Server.player[target].alive = false;
+                ClientManager.sendToAllClients(target + " newStatus dead");
+            }
+
+        }
+
+
 
         return "Killing player " + playerId;
     }
@@ -42,8 +77,7 @@ class TeleportExpression implements Expression
     public String interpret(int playerId)
     {
 
-        if (target >= 0 && target < Server.player.length && Server.player[target].alive &&
-        destination >= 0 && destination < Server.player.length && Server.player[destination].alive)
+        if (Server.IsValidAndAlivePlayer(target) && Server.IsValidAndAlivePlayer(destination))
         {
 
             int newX = Server.player[destination].x;

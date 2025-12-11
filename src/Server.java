@@ -129,6 +129,10 @@ class Server {
    static PlayerData[] player = null;
    static Coordinate[][] map = null;
 
+   static boolean IsValidAndAlivePlayer(int id)
+   {
+       return id >= 0 && id < player.length && player[id].alive;
+   }
    
    Server(int portNumber) {
 

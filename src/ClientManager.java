@@ -109,13 +109,7 @@ class ClientManager extends Thread {
          {
              String consoleCommand = receivedString.substring(receivedString.indexOf(' ') + 1);
 
-             Lexer lexer = new Lexer(consoleCommand);
-             List<Token> tokens = lexer.tokenize();
-
-             Parser parser = new Parser(tokens);
-             Expression e = parser.parse();
-
-             String messageBack = e.interpret(id);
+             String messageBack = ConsoleCommandHelper.Execute(id, consoleCommand);
 
              SendConsoleResponse(messageBack);
 

@@ -28,6 +28,21 @@ class Parser
         return retExpression;
     }
 
+    private Token consume(TokenType expected)
+    {
+        Token t = peek();
+        if (t.type != expected)
+        {
+            return null;
+        }
+        pos++;
+        return t;
+    }
+
+    private Token peek() {
+        return tokens.get(pos);
+    }
+
     private Expression nop()
     {
         return new NopExpression();
@@ -36,7 +51,18 @@ class Parser
     private Expression kill()
     {
        if (consume(TokenType.KILL) != null)
-            return new KillExpression();
+       {
+           Token t = consume(TokenType.NUMBER);
+
+           if (t != null)
+            return new KillExpression(Integer.parseInt(t.text));
+
+           return new KillExpression();
+       }
+
+
+
+
 
        return null;
     }
@@ -69,18 +95,5 @@ class Parser
         return null;
     }
 
-    private Token consume(TokenType expected)
-    {
-        Token t = peek();
-        if (t.type != expected)
-        {
-           return null;
-        }
-        pos++;
-        return t;
-    }
 
-    private Token peek() {
-        return tokens.get(pos);
-    }
 }
